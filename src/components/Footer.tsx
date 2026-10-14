@@ -1,7 +1,12 @@
 import React from 'react';
 import { ShieldCheck, MapPin, Mail, Phone, Lock } from 'lucide-react';
+import { HouseSettings } from '../types';
 
-export const Footer: React.FC = () => {
+interface FooterProps {
+  houseSettings: HouseSettings;
+}
+
+export const Footer: React.FC<FooterProps> = ({ houseSettings }) => {
   return (
     <footer className="bg-slate-950 text-slate-400 border-t border-slate-800 text-xs py-10 mt-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
@@ -9,18 +14,29 @@ export const Footer: React.FC = () => {
           {/* Brand info */}
           <div className="space-y-3 md:col-span-2">
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-xs">
-                ر
+              <div className="w-6 h-6 rounded bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-xs overflow-hidden">
+                {houseSettings.logoUrl ? (
+                  <img
+                    src={houseSettings.logoUrl}
+                    alt={houseSettings.houseName}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLElement).style.display = 'none';
+                    }}
+                  />
+                ) : (
+                  <span>ر</span>
+                )}
               </div>
               <h4 className="font-brand font-bold text-sm text-white">
-                دار نشر وتوزيع رميساء والترجمة
+                {houseSettings.houseName}
               </h4>
             </div>
             <p className="text-slate-400 leading-relaxed text-[11px] max-w-md">
-              مؤسسة جزائرية مستقلة متخصصة في نشر وتوزيع الأعمال الأدبية، الروايات المعاصرة، والترجمات الأكاديمية. مرخصة ومسجلة رسمياً لدى المكتبة الوطنية الجزائرية (BNA).
+              {houseSettings.aboutText}
             </p>
             <p className="text-amber-400 text-[11px] font-semibold">
-              المدير العام المسؤول: الأستاذ كمال لعرابي
+              {houseSettings.managerTitle}: {houseSettings.managerName}
             </p>
           </div>
 
@@ -30,15 +46,15 @@ export const Footer: React.FC = () => {
             <div className="space-y-1.5 text-[11px] text-slate-400">
               <p className="flex items-center gap-2">
                 <MapPin className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                <span>تيزي وزو، الجمهورية الجزائرية</span>
+                <span>{houseSettings.location}</span>
               </p>
               <p className="flex items-center gap-2">
                 <Mail className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                <span className="font-mono">roumaissaeditionettraduction@gmail.com</span>
+                <span className="font-mono">{houseSettings.officialEmail}</span>
               </p>
               <p className="flex items-center gap-2">
                 <Phone className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                <span className="font-mono">026 XX XX XX / 0550 XX XX XX</span>
+                <span className="font-mono">{houseSettings.phone1} / {houseSettings.phone2}</span>
               </p>
             </div>
           </div>
@@ -54,19 +70,22 @@ export const Footer: React.FC = () => {
               <p className="text-slate-400 leading-normal">
                 جميع حقوق الطبع والترجمة والنشر الإلكتروني محفوظة. تخضع المبيعات لبوابة Chargily Pay الجزائر.
               </p>
+              <p className="text-[10px] text-amber-300 font-mono pt-1">
+                رقم الإيداع: {houseSettings.bnaRegistrationCode}
+              </p>
             </div>
           </div>
         </div>
 
         {/* Bottom Bar */}
         <div className="border-t border-slate-900 pt-6 flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-500 gap-2">
-          <p>© {new Date().getFullYear()} دار نشر وتوزيع رميساء - تيزي وزو. جميع الحقوق محفوظة.</p>
+          <p>© {new Date().getFullYear()} {houseSettings.houseName} - {houseSettings.location}. جميع الحقوق محفوظة.</p>
           <div className="flex items-center gap-4">
-            <span>التسجيل الوطني: BNA Algérie</span>
+            <span>التسجيل الوطني: {houseSettings.bnaRegistrationCode}</span>
             <span>·</span>
             <span>بوابة الدفع: Chargily Pay (DZD)</span>
             <span>·</span>
-            <span>نظام الحماية الفكرية v2.4</span>
+            <span>الإشراف العام: {houseSettings.managerName}</span>
           </div>
         </div>
       </div>

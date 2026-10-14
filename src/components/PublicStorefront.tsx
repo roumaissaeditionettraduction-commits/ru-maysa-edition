@@ -15,12 +15,13 @@ import {
   Video,
   FileText
 } from 'lucide-react';
-import { Book, DiscussionComment } from '../types';
+import { Book, DiscussionComment, HouseSettings } from '../types';
 import { BookCover } from './BookCover';
 
 interface PublicStorefrontProps {
   books: Book[];
   discussions: DiscussionComment[];
+  houseSettings: HouseSettings;
   onSelectBookForPayment: (book: Book, format: 'ebook' | 'paper' | 'both') => void;
   onSelectBookForReading: (book: Book) => void;
   onOpenManuscriptModal: () => void;
@@ -30,6 +31,7 @@ interface PublicStorefrontProps {
 export const PublicStorefront: React.FC<PublicStorefrontProps> = ({
   books,
   discussions,
+  houseSettings,
   onSelectBookForPayment,
   onSelectBookForReading,
   onOpenManuscriptModal,
@@ -82,15 +84,15 @@ export const PublicStorefront: React.FC<PublicStorefrontProps> = ({
           <div className="space-y-4 max-w-xl text-right">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-amber-500/10 border border-amber-400/30 text-amber-300 text-xs font-semibold">
               <Award className="w-4 h-4 text-amber-400" />
-              <span>دار نشر وتوزيع رميساء • تيزي وزو، الجزائر</span>
+              <span>{houseSettings.houseName} • {houseSettings.location}</span>
             </div>
 
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-brand font-bold leading-tight text-white drop-shadow-md">
-              حيث تلتقي أصالة الفكر الجزائري بدقة الترجمة العالمية
+              {houseSettings.tagline}
             </h1>
 
             <p className="text-sm sm:text-base text-slate-300 leading-relaxed font-literary">
-              تحت إشراف المدير العام <strong className="text-amber-300">كمال لعرابي</strong>، نحرص على إصدار ونشر أحدث الروايات الأدبية والدراسات المترجمة مع التسجيل الوطني المعتمد بالمكتبة الوطنية (BNA)، وحماية مؤلفاتنا رقمياً مع خيارات الدفع الفوري بالدينار الجزائري عبر Chargily Pay.
+              تحت إشراف {houseSettings.managerTitle} <strong className="text-amber-300">{houseSettings.managerName}</strong>، نحرص على نشر أحدث الروايات الأدبية والدراسات المترجمة مع التسجيل الوطني المعتمد بالمكتبة الوطنية (BNA)، وحماية مؤلفاتنا رقمياً مع خيارات الدفع الفوري بالدينار الجزائري عبر Chargily Pay.
             </p>
 
             <div className="flex flex-wrap items-center gap-3 pt-2">
@@ -336,27 +338,27 @@ export const PublicStorefront: React.FC<PublicStorefrontProps> = ({
         <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
           <div className="space-y-4">
             <span className="text-xs text-amber-400 font-mono tracking-wider uppercase">
-              تيزي وزو • ولاية 15 • الجزائر
+              {houseSettings.location}
             </span>
             <h3 className="text-2xl sm:text-3xl font-brand font-bold">
-              دار رميساء: رسالة في خدمة الثقافة والأدب
+              {houseSettings.houseName}: رسالة في خدمة الثقافة والأدب
             </h3>
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-literary">
-              تأسست دار نشر وتوزيع رميساء في مدينة تيزي وزو بالجزائر كصرح ثقافي يعنى بنشر الأدب الرفيع، الترجمات الأكاديمية الدقيقة، والدراسات التاريخية التي توثق التراث الجزائري الغني. بقيادة المدير العام <strong>كمال لعرابي</strong>، نسعى دائماً لتكريس معايير الإيداع القانوني وتوفير قنوات توزيع وتجارة إلكترونية مؤمنة تخدم القارئ والمؤلف على حد سواء.
+              {houseSettings.aboutText}
             </p>
 
             <div className="pt-2 flex flex-wrap gap-4 text-xs font-mono text-amber-200">
               <div>
                 <span className="text-slate-400 block text-[10px]">المقر الرئيسي:</span>
-                <span>تيزي وزو، الجمهورية الجزائرية</span>
+                <span>{houseSettings.location}</span>
               </div>
               <div className="border-r border-slate-700 pr-4">
-                <span className="text-slate-400 block text-[10px]">المدير العام:</span>
-                <span>كمال لعرابي</span>
+                <span className="text-slate-400 block text-[10px]">المدير العام المسؤول:</span>
+                <span>{houseSettings.managerName}</span>
               </div>
               <div className="border-r border-slate-700 pr-4">
                 <span className="text-slate-400 block text-[10px]">رقم الإيداع:</span>
-                <span>BNA ALGIERS OFFICIAL</span>
+                <span>{houseSettings.bnaRegistrationCode}</span>
               </div>
             </div>
           </div>

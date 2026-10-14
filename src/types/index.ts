@@ -7,6 +7,7 @@ export interface Book {
   category: 'literature' | 'translation' | 'mystery' | 'history' | 'academic';
   categoryLabel: string;
   priceDZD: number;
+  ebookPriceDZD?: number;
   paperAvailable: boolean;
   ebookAvailable: boolean;
   stockStatus: string; // e.g. "مستقر (تم التسجيل الوطني بـ BNA)" or "متاح في المستودع"
@@ -75,4 +76,23 @@ export interface DiscussionComment {
   date: string;
   isApproved: boolean;
   wilaya?: string;
+}
+
+export interface HouseSettings {
+  houseName: string;
+  tagline: string;
+  managerName: string;
+  managerTitle: string;
+  logoUrl: string;
+  location: string;
+  officialEmail: string;
+  phone1: string;
+  phone2: string;
+  bnaRegistrationCode: string;
+  aboutText: string;
+  paperDeliveryFee: number;
+  adminPassword: string;
+  protectionActive: boolean;
+  chargilyLiveUrl: string;
+  chargilySecretKey: string;
 }

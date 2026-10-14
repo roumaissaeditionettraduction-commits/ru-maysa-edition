@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SecurityGuard } from './components/SecurityGuard';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
@@ -7,20 +7,49 @@ import { ExecutiveDashboard } from './components/ExecutiveDashboard';
 import { ChargilyPayModal } from './components/ChargilyPayModal';
 import { EbookReaderModal } from './components/EbookReaderModal';
 import { ManuscriptSubmissionModal } from './components/ManuscriptSubmissionModal';
+import { AdminAuthModal } from './components/AdminAuthModal';
 import {
   INITIAL_BOOKS,
   INITIAL_TRANSACTIONS,
   INITIAL_MANUSCRIPTS,
   INITIAL_SPAM_LOGS,
-  INITIAL_DISCUSSIONS
+  INITIAL_DISCUSSIONS,
+  DEFAULT_HOUSE_SETTINGS
 } from './data/mockData';
-import { Book, Transaction, ManuscriptSubmission, SpamLog, DiscussionComment } from './types';
+import { Book, Transaction, ManuscriptSubmission, SpamLog, DiscussionComment, HouseSettings } from './types';
 
 export default function App() {
   const [currentView, setCurrentView] = useState<'store' | 'admin'>('store');
   
+  // House & Website Settings (saved in localStorage for permanent persistence)
+  const [houseSettings, setHouseSettings] = useState<HouseSettings>(() => {
+    try {
+      const saved = localStorage.getItem('roumaissa_house_settings');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return DEFAULT_HOUSE_SETTINGS;
+  });
+
+  // Admin authentication state (saved in sessionStorage)
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(() => {
+    try {
+      return sessionStorage.getItem('roumaissa_admin_auth') === 'true';
+    } catch (e) {
+      return false;
+    }
+  });
+
+  const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
+
   // App State
-  const [books, setBooks] = useState<Book[]>(INITIAL_BOOKS);
+  const [books, setBooks] = useState<Book[]>(() => {
+    try {
+      const saved = localStorage.getItem('roumaissa_books_inventory');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return INITIAL_BOOKS;
+  });
+
   const [transactions, setTransactions] = useState<Transaction[]>(INITIAL_TRANSACTIONS);
   const [manuscripts, setManuscripts] = useState<ManuscriptSubmission[]>(INITIAL_MANUSCRIPTS);
   const [spamLogs, setSpamLogs] = useState<SpamLog[]>(INITIAL_SPAM_LOGS);
@@ -33,6 +62,35 @@ export default function App() {
   } | null>(null);
   const [readingBook, setReadingBook] = useState<Book | null>(null);
   const [showManuscriptModal, setShowManuscriptModal] = useState<boolean>(false);
+
+  // Save settings when changed
+  const handleUpdateSettings = (updated: HouseSettings) => {
+    setHouseSettings(updated);
+    try {
+      localStorage.setItem('roumaissa_house_settings', JSON.stringify(updated));
+    } catch (e) {}
+  };
+
+  // Save books inventory when changed
+  const handleUpdateBook = (updated: Book) => {
+    setBooks((prev) => {
+      const next = prev.map((b) => (b.id === updated.id ? updated : b));
+      try {
+        localStorage.setItem('roumaissa_books_inventory', JSON.stringify(next));
+      } catch (e) {}
+      return next;
+    });
+  };
+
+  const handleAddBook = (created: Book) => {
+    setBooks((prev) => {
+      const next = [created, ...prev];
+      try {
+        localStorage.setItem('roumaissa_books_inventory', JSON.stringify(next));
+      } catch (e) {}
+      return next;
+    });
+  };
 
   // Dynamic KPI Calculations starting from prompt baseline
   const baseSalesFromInitial = 184500;
@@ -66,14 +124,6 @@ export default function App() {
     }
   };
 
-  const handleUpdateBook = (updated: Book) => {
-    setBooks((prev) => prev.map((b) => (b.id === updated.id ? updated : b)));
-  };
-
-  const handleAddBook = (created: Book) => {
-    setBooks((prev) => [created, ...prev]);
-  };
-
   const handleUpdateManuscriptStatus = (
     id: string,
     status: 'accepted' | 'rejected' | 'reviewing'
@@ -104,12 +154,29 @@ export default function App() {
     setDiscussions((prev) => prev.filter((d) => d.id !== id));
   };
 
+  const handleAdminAuthSuccess = () => {
+    setIsAdminAuthenticated(true);
+    setShowAuthModal(false);
+    try {
+      sessionStorage.setItem('roumaissa_admin_auth', 'true');
+    } catch (e) {}
+  };
+
+  const handleAdminLogout = () => {
+    setIsAdminAuthenticated(false);
+    try {
+      sessionStorage.removeItem('roumaissa_admin_auth');
+    } catch (e) {}
+  };
+
   return (
     <SecurityGuard>
       <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans">
         {/* Top Navbar */}
         <Header
           currentView={currentView}
+          houseSettings={houseSettings}
+          isAdminAuthenticated={isAdminAuthenticated}
           onViewChange={setCurrentView}
           onOpenManuscriptModal={() => setShowManuscriptModal(true)}
         />
@@ -120,6 +187,7 @@ export default function App() {
             <PublicStorefront
               books={books}
               discussions={discussions}
+              houseSettings={houseSettings}
               onSelectBookForPayment={(book, format) => setPaymentTarget({ book, format })}
               onSelectBookForReading={(book) => setReadingBook(book)}
               onOpenManuscriptModal={() => setShowManuscriptModal(true)}
@@ -134,6 +202,11 @@ export default function App() {
               discussions={discussions}
               totalSalesDZD={totalSalesDZD}
               digitalCopiesSold={totalDigitalCopies}
+              houseSettings={houseSettings}
+              isAdminAuthenticated={isAdminAuthenticated}
+              onOpenAuthModal={() => setShowAuthModal(true)}
+              onLogoutAdmin={handleAdminLogout}
+              onUpdateSettings={handleUpdateSettings}
               onUpdateBook={handleUpdateBook}
               onAddBook={handleAddBook}
               onUpdateManuscriptStatus={handleUpdateManuscriptStatus}
@@ -144,9 +217,17 @@ export default function App() {
         </main>
 
         {/* Footer */}
-        <Footer />
+        <Footer houseSettings={houseSettings} />
 
         {/* Modals */}
+        {showAuthModal && (
+          <AdminAuthModal
+            currentPassword={houseSettings.adminPassword}
+            onClose={() => setShowAuthModal(false)}
+            onSuccess={handleAdminAuthSuccess}
+          />
+        )}
+
         {paymentTarget && (
           <ChargilyPayModal
             book={paymentTarget.book}

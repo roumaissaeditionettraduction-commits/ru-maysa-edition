@@ -20,9 +20,13 @@ import {
   RefreshCw,
   ExternalLink,
   Lock,
-  ChevronDown
+  Unlock,
+  Building,
+  KeyRound,
+  FileBadge
 } from 'lucide-react';
-import { Book, Transaction, ManuscriptSubmission, SpamLog, DiscussionComment } from '../types';
+import { Book, Transaction, ManuscriptSubmission, SpamLog, DiscussionComment, HouseSettings } from '../types';
+import { HouseSettingsPanel } from './HouseSettingsPanel';
 
 interface ExecutiveDashboardProps {
   books: Book[];
@@ -32,6 +36,11 @@ interface ExecutiveDashboardProps {
   discussions: DiscussionComment[];
   totalSalesDZD: number;
   digitalCopiesSold: number;
+  houseSettings: HouseSettings;
+  isAdminAuthenticated: boolean;
+  onOpenAuthModal: () => void;
+  onLogoutAdmin: () => void;
+  onUpdateSettings: (updated: HouseSettings) => void;
   onUpdateBook: (book: Book) => void;
   onAddBook: (book: Book) => void;
   onUpdateManuscriptStatus: (id: string, status: 'accepted' | 'rejected' | 'reviewing') => void;
@@ -47,22 +56,25 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
   discussions,
   totalSalesDZD,
   digitalCopiesSold,
+  houseSettings,
+  isAdminAuthenticated,
+  onOpenAuthModal,
+  onLogoutAdmin,
+  onUpdateSettings,
   onUpdateBook,
   onAddBook,
   onUpdateManuscriptStatus,
   onApproveDiscussion,
   onDeleteDiscussion
 }) => {
-  const [activeTab, setActiveTab] = useState<'overview' | 'inventory' | 'payments' | 'manuscripts' | 'spam' | 'security'>('overview');
-  
-  // Search & filter state
-  const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState<'overview' | 'settings' | 'inventory' | 'payments' | 'manuscripts' | 'spam' | 'security'>('overview');
   
   // New book modal
   const [showAddBookModal, setShowAddBookModal] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newAuthor, setNewAuthor] = useState('');
-  const [newPrice, setNewPrice] = useState('1300');
+  const [newPaperPrice, setNewPaperPrice] = useState('1400');
+  const [newEbookPrice, setNewEbookPrice] = useState('800');
   const [newCategory, setNewCategory] = useState<'literature' | 'translation' | 'mystery' | 'history'>('literature');
   const [newStockStatus, setNewStockStatus] = useState('متاح في المستودع');
 
@@ -78,21 +90,25 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
     e.preventDefault();
     if (!newTitle) return;
 
+    const paper = parseInt(newPaperPrice) || 1200;
+    const ebook = parseInt(newEbookPrice) || 600;
+
     const created: Book = {
       id: `book-${Date.now()}`,
       title: newTitle,
       subtitle: 'إصدار جديد معتمد من دار رميساء',
-      author: newAuthor || 'دار رميساء للنشر',
+      author: newAuthor || houseSettings.managerName || 'دار رميساء للنشر',
       category: newCategory,
       categoryLabel: newCategory === 'literature' ? 'أدب ورواية' : 'إصدار ثقافي',
-      priceDZD: parseInt(newPrice) || 1200,
+      priceDZD: paper,
+      ebookPriceDZD: ebook,
       paperAvailable: true,
       ebookAvailable: true,
       stockStatus: newStockStatus,
       bnaStatus: 'تم التسجيل الوطني بـ BNA',
       securityStatus: 'مؤمن / للقراءة فقط',
-      pageCount: 220,
-      year: 2026,
+      pageCount: 240,
+      year: new Date().getFullYear(),
       isbn: `978-9931-78-${Math.floor(100 + Math.random() * 899)}-1`,
       description: 'كتاب جديد تمت إضافته لقائمة إصدارات دار رميساء للنشر والترجمة.',
       coverGradient: 'from-slate-900 via-amber-950 to-slate-950',
@@ -102,7 +118,7 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
         {
           number: 1,
           title: 'الفصل الأول: تمهيد الطبعة',
-          content: 'نص الفصل الأول للمصنف المسجل والمحمي قانونياً لدى دار رميساء.'
+          content: 'نص الفصل الأول للمصنف المسجل والمحمي قانونياً لدى دار رميساء للنشر والترجمة.'
         }
       ]
     };
@@ -125,37 +141,76 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
       {/* Top Welcome Navbar */}
       <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-xl bg-slate-900 text-amber-400 border border-amber-500/30 flex items-center justify-center font-bold text-xl shadow-inner">
-            ر
+          {/* Brand Logo Display */}
+          <div className="w-12 h-12 rounded-xl bg-slate-900 text-amber-400 border border-amber-500/30 flex items-center justify-center font-bold text-xl shadow-inner overflow-hidden shrink-0">
+            {houseSettings.logoUrl ? (
+              <img
+                src={houseSettings.logoUrl}
+                alt={houseSettings.houseName}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLElement).style.display = 'none';
+                }}
+              />
+            ) : (
+              <span>ر</span>
+            )}
           </div>
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-lg font-bold text-slate-900">
-                لوحة تحكم دار نشر رميساء والترجمة - التحكم الكلي الآمن
+                لوحة تحكم {houseSettings.houseName} - التحكم الكلي الآمن
               </h2>
               <span className="text-xs bg-amber-100 text-amber-800 font-semibold px-2 py-0.5 rounded">
-                تيزي وزو، الجزائر
+                {houseSettings.location}
               </span>
             </div>
             <p className="text-xs text-slate-500 mt-0.5">
-              مرحباً بالمدير العام المسؤول:{' '}
-              <strong className="text-slate-800 font-bold">كمال لعرابي</strong>
+              مرحباً بـ {houseSettings.managerTitle}:{' '}
+              <strong className="text-slate-800 font-bold">{houseSettings.managerName}</strong>
             </p>
           </div>
         </div>
 
-        {/* Quick Nav Badges */}
+        {/* Auth status & Quick Actions */}
         <div className="flex items-center gap-2 flex-wrap">
-          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-lg text-xs font-semibold">
-            <ShieldCheck className="w-4 h-4 text-emerald-600" />
-            <span>بوابة Chargily Pay متصلة</span>
-          </div>
+          {isAdminAuthenticated ? (
+            <div className="flex items-center gap-2">
+              <span className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-lg text-xs font-semibold">
+                <Unlock className="w-3.5 h-3.5 text-emerald-600" />
+                <span>لوحة التحكم مفتوحة للمسؤول</span>
+              </span>
+              <button
+                onClick={onLogoutAdmin}
+                className="px-3 py-1.5 border border-red-300 text-red-600 hover:bg-red-50 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1"
+                title="قفل التعديلات"
+              >
+                <Lock className="w-3.5 h-3.5" />
+                <span>قفل لوحة التعديل</span>
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={onOpenAuthModal}
+              className="px-3.5 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg shadow flex items-center gap-1.5 transition-colors"
+            >
+              <KeyRound className="w-4 h-4" />
+              <span>🔓 فتح لوحة التحكم الخاصة بالمسؤول</span>
+            </button>
+          )}
+
           <button
-            onClick={() => setShowAddBookModal(true)}
+            onClick={() => {
+              if (!isAdminAuthenticated) {
+                onOpenAuthModal();
+              } else {
+                setShowAddBookModal(true);
+              }
+            }}
             className="px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-amber-400 font-semibold text-xs rounded-lg shadow flex items-center gap-1.5 transition-colors"
           >
             <Plus className="w-4 h-4" />
-            <span>إضافة كتاب جديد للجرد</span>
+            <span>إضافة كتاب جديد</span>
           </button>
         </div>
       </div>
@@ -166,7 +221,7 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
         <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden">
           <div className="absolute top-0 right-0 bottom-0 w-1.5 bg-amber-500" />
           <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
-            <span>المبيعات الحالية (Chargily Pay)</span>
+            <span>المبيعات الحالية لليوم (Chargily Pay)</span>
             <TrendingUp className="w-4 h-4 text-amber-600" />
           </div>
           <p className="text-2xl font-bold text-slate-900 mt-2 font-mono tabular-nums">
@@ -181,14 +236,14 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
         <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden">
           <div className="absolute top-0 right-0 bottom-0 w-1.5 bg-blue-500" />
           <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
-            <span>النسخ الرقمية المفتوحة (E-Book)</span>
+            <span>النسخ الرقمية المشفرة (E-Book)</span>
             <BookOpen className="w-4 h-4 text-blue-600" />
           </div>
           <p className="text-2xl font-bold text-slate-900 mt-2 font-mono tabular-nums">
             {digitalCopiesSold} نسخة
           </p>
           <p className="text-[11px] text-slate-500 mt-1">
-            رخص قراءة مؤمنة داخل النطاق
+            رخص قراءة مؤمنة ضد النسخ والتصوير
           </p>
         </div>
 
@@ -196,14 +251,14 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
         <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden">
           <div className="absolute top-0 right-0 bottom-0 w-1.5 bg-red-500" />
           <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
-            <span>مسودات معلقة من المشاركين</span>
+            <span>مسودات معلقة في انتظار المراجعة</span>
             <AlertOctagon className="w-4 h-4 text-red-600" />
           </div>
           <p className="text-2xl font-bold text-red-600 mt-2 font-mono tabular-nums">
             {pendingManuscriptsCount} مقالات / مسودات
           </p>
           <p className="text-[11px] text-red-500 mt-1 font-medium">
-            تتطلب التحكيم واعتماد كمال لعرابي
+            تتطلب التحكيم واعتماد {houseSettings.managerName}
           </p>
         </div>
       </div>
@@ -218,7 +273,25 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
               : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
           }`}
         >
-          📊 لوحة الإدارة الكلية
+          📊 لوحة الإدارة العامة
+        </button>
+        <button
+          onClick={() => {
+            if (!isAdminAuthenticated) {
+              onOpenAuthModal();
+            } else {
+              setActiveTab('settings');
+            }
+          }}
+          className={`px-4 py-2 rounded-lg font-semibold whitespace-nowrap transition-colors flex items-center gap-1.5 ${
+            activeTab === 'settings'
+              ? 'bg-amber-500 text-slate-950 font-bold shadow'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+          }`}
+        >
+          <Settings className="w-3.5 h-3.5" />
+          <span>⚙️ تعديل معلومات الدار والشعار</span>
+          {!isAdminAuthenticated && <Lock className="w-3 h-3 text-slate-400" />}
         </button>
         <button
           onClick={() => setActiveTab('inventory')}
@@ -228,7 +301,7 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
               : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
           }`}
         >
-          📚 جرد ومبيعات الكتب ({books.length})
+          📚 جرد وإضافة الكتب ({books.length})
         </button>
         <button
           onClick={() => setActiveTab('payments')}
@@ -285,7 +358,7 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
-                <span>إدارة جرد المخزون الحالي وإصدارات دار رميساء الحالية</span>
+                <span>جرد مخزون المنتجات وإصدارات {houseSettings.houseName} النشطة</span>
               </h3>
               <span className="text-xs text-slate-500">
                 تسجيل وطني رسمي بالمكتبة الوطنية الجزائرية (BNA)
@@ -296,10 +369,10 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
               <table className="w-full text-right text-xs">
                 <thead>
                   <tr className="bg-slate-50 text-slate-600 border-b border-slate-200">
-                    <th className="py-3 px-4 font-semibold">عنوان المصنف / الكتاب</th>
+                    <th className="py-3 px-4 font-semibold">عنوان المصنف / الكتاب الحقيقي</th>
                     <th className="py-3 px-4 font-semibold">حالة إدارة المخزون</th>
                     <th className="py-3 px-4 font-semibold">خيارات العرض المتوفرة</th>
-                    <th className="py-3 px-4 font-semibold">ثمن البيع المعتمد</th>
+                    <th className="py-3 px-4 font-semibold">ثمن البيع المعتمد بالعملة الوطنية</th>
                     <th className="py-3 px-4 font-semibold">الرابط الأمني للخادم</th>
                   </tr>
                 </thead>
@@ -332,7 +405,7 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
                         </span>
                       </td>
                       <td className="py-3 px-4 font-bold text-slate-900 font-mono tabular-nums">
-                        {b.priceDZD.toLocaleString()} دج
+                        ورقي: {b.priceDZD.toLocaleString()} دج / رقمي: {(b.ebookPriceDZD || Math.round(b.priceDZD * 0.6)).toLocaleString()} دج
                       </td>
                       <td className="py-3 px-4">
                         <span className="inline-flex items-center gap-1 bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-[11px] font-mono">
@@ -415,19 +488,40 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
         </div>
       )}
 
-      {/* TAB 2: INVENTORY & BOOKS EDIT */}
+      {/* TAB 2: HOUSE & WEBSITE SETTINGS (PRIVATE TO ADMIN) */}
+      {activeTab === 'settings' && (
+        <div className="space-y-4">
+          <HouseSettingsPanel
+            settings={houseSettings}
+            onSave={(updated) => onUpdateSettings(updated)}
+          />
+        </div>
+      )}
+
+      {/* TAB 3: INVENTORY & BOOKS EDIT */}
       {activeTab === 'inventory' && (
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <h3 className="font-bold text-slate-900 text-sm">
-              إدارة المصنفات وإصدارات دار رميساء الحالية
-            </h3>
+            <div>
+              <h3 className="font-bold text-slate-900 text-sm">
+                إدارة المصنفات وإصدارات دار رميساء الحالية
+              </h3>
+              <p className="text-xs text-slate-500">
+                يمكنك إضافة عناوين جديدة أو تعديل أسعار النسخ الورقية والرقمية
+              </p>
+            </div>
             <button
-              onClick={() => setShowAddBookModal(true)}
+              onClick={() => {
+                if (!isAdminAuthenticated) {
+                  onOpenAuthModal();
+                } else {
+                  setShowAddBookModal(true);
+                }
+              }}
               className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-amber-400 font-semibold text-xs rounded-lg shadow flex items-center gap-1.5"
             >
               <Plus className="w-4 h-4" />
-              <span>إضافة كتاب جديد</span>
+              <span>إضافة كتاب جديد للجرد</span>
             </button>
           </div>
 
@@ -452,15 +546,23 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
 
                 <div className="border-t border-slate-200 pt-3 flex items-center justify-between text-xs">
                   <div>
-                    <span className="text-slate-500">سعر البيع: </span>
-                    <strong className="font-mono text-sm text-slate-900 tabular-nums">
-                      {b.priceDZD.toLocaleString()} دج
-                    </strong>
+                    <span className="text-slate-500">الأسعار: </span>
+                    <span className="font-mono text-xs font-bold text-slate-900 tabular-nums">
+                      ورقي: {b.priceDZD.toLocaleString()} دج
+                    </span>
+                    <span className="text-slate-400 mx-1">/</span>
+                    <span className="font-mono text-xs font-bold text-amber-700 tabular-nums">
+                      رقمي: {(b.ebookPriceDZD || Math.round(b.priceDZD * 0.6)).toLocaleString()} دج
+                    </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => {
-                        const newP = prompt('أدخل السعر الجديد بالدينار الجزائري:', b.priceDZD.toString());
+                        if (!isAdminAuthenticated) {
+                          onOpenAuthModal();
+                          return;
+                        }
+                        const newP = prompt('أدخل سعر النسخة الورقية الجديد (دج):', b.priceDZD.toString());
                         if (newP && !isNaN(parseInt(newP))) {
                           onUpdateBook({ ...b, priceDZD: parseInt(newP) });
                         }
@@ -478,7 +580,7 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
         </div>
       )}
 
-      {/* TAB 3: CHARGILY PAYMENTS LOG */}
+      {/* TAB 4: CHARGILY PAYMENTS LOG */}
       {activeTab === 'payments' && (
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-4">
           <div className="flex items-center justify-between">
@@ -487,7 +589,7 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
                 سجل المعاملات والتحويلات المالية عبر Chargily Pay
               </h3>
               <p className="text-xs text-slate-500 mt-0.5">
-                حساب التاجر: دار رميساء للنشر والترجمة • تيزي وزو
+                حساب التاجر: {houseSettings.houseName} • {houseSettings.location}
               </p>
             </div>
             <div className="text-left font-mono">
@@ -540,7 +642,7 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
         </div>
       )}
 
-      {/* TAB 4: MANUSCRIPTS & ARTICLES */}
+      {/* TAB 5: MANUSCRIPTS & ARTICLES */}
       {activeTab === 'manuscripts' && (
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-4">
           <div className="flex items-center justify-between">
@@ -576,11 +678,11 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
                       }`}
                     >
                       {m.status === 'pending'
-                        ? 'معلق بانتظار المدير العام'
+                        ? `معلق بانتظار ${houseSettings.managerName}`
                         : m.status === 'reviewing'
                         ? 'قيد التحكيم والقراءة'
                         : m.status === 'accepted'
-                        ? 'معتمد للنشر في دار رميساء'
+                        ? `معتمد للنشر في ${houseSettings.houseName}`
                         : 'مرفوض'}
                     </span>
                   </div>
@@ -624,7 +726,7 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
         </div>
       )}
 
-      {/* TAB 5: SPAM & HONEYPOT LOGS */}
+      {/* TAB 6: SPAM & HONEYPOT LOGS */}
       {activeTab === 'spam' && (
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-4">
           <div className="flex items-center justify-between">
@@ -698,7 +800,7 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
         </div>
       )}
 
-      {/* TAB 6: SECURITY & DOMAIN STREAMING */}
+      {/* TAB 7: SECURITY & DOMAIN STREAMING */}
       {activeTab === 'security' && (
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-6">
           <div>
@@ -751,7 +853,7 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
               <div className="space-y-2 font-mono text-[11px]">
                 <div className="flex justify-between border-b border-slate-200 pb-1">
                   <span className="text-slate-500">CHARGILY_API_URL:</span>
-                  <span className="font-bold text-slate-800">https://chargily.net</span>
+                  <span className="font-bold text-slate-800">{houseSettings.chargilyLiveUrl}</span>
                 </div>
                 <div className="flex justify-between border-b border-slate-200 pb-1">
                   <span className="text-slate-500">Currency:</span>
@@ -775,7 +877,7 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm">
           <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 text-xs text-slate-800 space-y-4 border border-slate-200">
             <div className="flex items-center justify-between border-b border-slate-200 pb-3">
-              <h4 className="text-sm font-bold text-slate-900">إضافة مصنف جديد لمخزون دار رميساء</h4>
+              <h4 className="text-sm font-bold text-slate-900">إضافة مصنف أو كتاب جديد إلى متجر {houseSettings.houseName}</h4>
               <button onClick={() => setShowAddBookModal(false)} className="text-slate-400 hover:text-slate-700">
                 <XCircle className="w-5 h-5" />
               </button>
@@ -783,14 +885,14 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
 
             <form onSubmit={handleCreateBook} className="space-y-3">
               <div>
-                <label className="block font-semibold mb-1">عنوان المصنف / الكتاب *</label>
+                <label className="block font-semibold mb-1">عنوان الكتاب بالكامل *</label>
                 <input
                   type="text"
                   required
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
-                  placeholder="مثال: نسائم جرجرة"
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-amber-500"
+                  placeholder="مثال: نسائم جرجرة في الأدب الحديث"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-amber-500 font-bold"
                 />
               </div>
 
@@ -800,22 +902,35 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
                   type="text"
                   value={newAuthor}
                   onChange={(e) => setNewAuthor(e.target.value)}
-                  placeholder="مثال: د. كمال لعرابي"
+                  placeholder={`مثال: ${houseSettings.managerName}`}
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-amber-500"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold mb-1">السعر (دج) *</label>
+                  <label className="block font-semibold mb-1">ثمن بيع النسخة الورقية (دج) *</label>
                   <input
                     type="number"
                     required
-                    value={newPrice}
-                    onChange={(e) => setNewPrice(e.target.value)}
+                    value={newPaperPrice}
+                    onChange={(e) => setNewPaperPrice(e.target.value)}
                     className="w-full px-3 py-2 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-amber-500 font-mono"
                   />
                 </div>
+                <div>
+                  <label className="block font-semibold mb-1">ثمن بيع نسخة الـ E-Book الرقمية (دج) *</label>
+                  <input
+                    type="number"
+                    required
+                    value={newEbookPrice}
+                    onChange={(e) => setNewEbookPrice(e.target.value)}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-amber-500 font-mono"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block font-semibold mb-1">التصنيف</label>
                   <select
@@ -829,16 +944,15 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
                     <option value="history">تاريخ وتراث</option>
                   </select>
                 </div>
-              </div>
-
-              <div>
-                <label className="block font-semibold mb-1">حالة المخزون والتسجيل</label>
-                <input
-                  type="text"
-                  value={newStockStatus}
-                  onChange={(e) => setNewStockStatus(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg outline-none"
-                />
+                <div>
+                  <label className="block font-semibold mb-1">حالة المستودع والتسجيل</label>
+                  <input
+                    type="text"
+                    value={newStockStatus}
+                    onChange={(e) => setNewStockStatus(e.target.value)}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg outline-none"
+                  />
+                </div>
               </div>
 
               <div className="pt-2 flex gap-2">
@@ -853,7 +967,7 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
                   type="submit"
                   className="w-1/2 py-2 bg-slate-900 text-amber-400 font-bold rounded-lg hover:bg-slate-800"
                 >
-                  حفظ المصنف
+                  إدراج الكتاب فوراً في جدول الجرد العام
                 </button>
               </div>
             </form>
@@ -866,7 +980,7 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm">
           <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 text-xs text-slate-800 space-y-4 border border-slate-200">
             <div className="flex items-center justify-between border-b border-slate-200 pb-3">
-              <h4 className="text-sm font-bold text-slate-900">فاتورة رسمية - دار رميساء</h4>
+              <h4 className="text-sm font-bold text-slate-900">فاتورة رسمية - {houseSettings.houseName}</h4>
               <button onClick={() => setSelectedTx(null)} className="text-slate-400 hover:text-slate-700">
                 <XCircle className="w-5 h-5" />
               </button>
@@ -874,8 +988,8 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
 
             <div className="border border-slate-200 rounded-lg p-4 bg-slate-50 space-y-2 font-mono text-[11px]">
               <div className="text-center pb-2 border-b border-slate-200">
-                <p className="font-bold text-sm text-slate-900">دار نشر وتوزيع رميساء</p>
-                <p className="text-slate-500 text-[10px]">تيزي وزو، الجزائر • المدير العام: كمال لعرابي</p>
+                <p className="font-bold text-sm text-slate-900">{houseSettings.houseName}</p>
+                <p className="text-slate-500 text-[10px]">{houseSettings.location} • {houseSettings.managerTitle}: {houseSettings.managerName}</p>
                 <p className="text-amber-800 font-bold mt-1">Ref: {selectedTx.transactionRef}</p>
               </div>
 

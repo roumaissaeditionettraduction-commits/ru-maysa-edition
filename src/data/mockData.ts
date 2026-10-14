@@ -1,4 +1,23 @@
-import { Book, Transaction, ManuscriptSubmission, SpamLog, DiscussionComment } from '../types';
+import { Book, Transaction, ManuscriptSubmission, SpamLog, DiscussionComment, HouseSettings } from '../types';
+
+export const DEFAULT_HOUSE_SETTINGS: HouseSettings = {
+  houseName: "دار رميساء للنشر والترجمة",
+  tagline: "حيث تلتقي أصالة الفكر الجزائري بدقة الترجمة العالمية",
+  managerName: "كمال لعرابي",
+  managerTitle: "المدير العام المسؤول",
+  logoUrl: "",
+  location: "تيزي وزو، الجمهورية الجزائرية",
+  officialEmail: "roumaissaeditionettraduction@gmail.com",
+  phone1: "026 21 44 80",
+  phone2: "0550 18 92 34",
+  bnaRegistrationCode: "BNA-DZ-2024-OFFICIAL",
+  aboutText: "تأسست دار نشر وتوزيع رميساء في مدينة تيزي وزو بالجزائر كصرح ثقافي يعنى بنشر الأدب الرفيع، الترجمات الأكاديمية الدقيقة، والدراسات التاريخية التي توثق التراث الجزائري الغني. بقيادة المدير العام كمال لعرابي، نسعى دائماً لتكريس معايير الإيداع القانوني وتوفير قنوات توزيع وتجارة إلكترونية مؤمنة تخدم القارئ والمؤلف على حد سواء.",
+  paperDeliveryFee: 400,
+  adminPassword: "Rumaysa2026@Secure",
+  protectionActive: true,
+  chargilyLiveUrl: "https://chargily.net",
+  chargilySecretKey: "CH_SECRET_KEY_PROD_XXXXXXXXXXXXXXXXX"
+};
 
 export const INITIAL_BOOKS: Book[] = [
   {

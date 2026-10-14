@@ -1,14 +1,19 @@
 import React from 'react';
-import { ShieldCheck, BookOpen, UserCheck, LayoutDashboard } from 'lucide-react';
+import { ShieldCheck, BookOpen, UserCheck, LayoutDashboard, Lock, Unlock } from 'lucide-react';
+import { HouseSettings } from '../types';
 
 interface HeaderProps {
   currentView: 'store' | 'admin';
+  houseSettings: HouseSettings;
+  isAdminAuthenticated: boolean;
   onViewChange: (view: 'store' | 'admin') => void;
   onOpenManuscriptModal: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   currentView,
+  houseSettings,
+  isAdminAuthenticated,
   onViewChange,
   onOpenManuscriptModal
 }) => {
@@ -20,11 +25,22 @@ export const Header: React.FC<HeaderProps> = ({
           onClick={() => onViewChange('store')}
           className="flex items-center gap-2.5 cursor-pointer whitespace-nowrap shrink-0 group"
         >
-          <div className="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-400/40 text-amber-300 flex items-center justify-center font-bold text-base shadow-sm group-hover:bg-amber-500/30 transition-colors">
-            ر
+          <div className="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-400/40 text-amber-300 flex items-center justify-center font-bold text-base shadow-sm group-hover:bg-amber-500/30 transition-colors overflow-hidden">
+            {houseSettings.logoUrl ? (
+              <img
+                src={houseSettings.logoUrl}
+                alt={houseSettings.houseName}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLElement).style.display = 'none';
+                }}
+              />
+            ) : (
+              <span>ر</span>
+            )}
           </div>
           <span className="font-brand font-bold text-base sm:text-lg tracking-tight text-white group-hover:text-amber-300 transition-colors">
-            دار رميساء للنشر والترجمة
+            {houseSettings.houseName}
           </span>
         </div>
 
@@ -53,11 +69,16 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
           <button
             onClick={() => onViewChange('admin')}
-            className={`hover:text-amber-300 transition-colors whitespace-nowrap shrink-0 ${
+            className={`hover:text-amber-300 transition-colors whitespace-nowrap shrink-0 flex items-center gap-1 ${
               currentView === 'admin' ? 'text-amber-400 font-bold' : ''
             }`}
           >
-            إدارة كمال لعرابي
+            <span>إدارة {houseSettings.managerName}</span>
+            {isAdminAuthenticated ? (
+              <Unlock className="w-3 h-3 text-emerald-400" />
+            ) : (
+              <Lock className="w-3 h-3 text-slate-400" />
+            )}
           </button>
         </nav>
 
