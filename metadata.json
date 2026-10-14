@@ -1,0 +1,6 @@
+{
+  "name": "دار رميساء للنشر والترجمة - تيزي وزو",
+  "description": "المنصة الرسمية لدار نشر وتوزيع رميساء بتيزي وزو، الجزائر - إدارة كمال لعرابي. متجر كتب ورقية وإلكترونية مع دفع فوري آمن Chargily Pay وحماية الملكية الفكرية.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
