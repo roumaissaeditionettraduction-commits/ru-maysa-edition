@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import { Book, Transaction, ManuscriptSubmission, SpamLog, DiscussionComment, HouseSettings } from '../types';
 import { HouseSettingsPanel } from './HouseSettingsPanel';
+import { EditBookModal } from './EditBookModal';
 
 interface ExecutiveDashboardProps {
   books: Book[];
@@ -42,6 +43,7 @@ interface ExecutiveDashboardProps {
   onLogoutAdmin: () => void;
   onUpdateSettings: (updated: HouseSettings) => void;
   onUpdateBook: (book: Book) => void;
+  onDeleteBook: (bookId: string) => void;
   onAddBook: (book: Book) => void;
   onUpdateManuscriptStatus: (id: string, status: 'accepted' | 'rejected' | 'reviewing') => void;
   onApproveDiscussion: (id: string) => void;
@@ -62,6 +64,7 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
   onLogoutAdmin,
   onUpdateSettings,
   onUpdateBook,
+  onDeleteBook,
   onAddBook,
   onUpdateManuscriptStatus,
   onApproveDiscussion,
@@ -69,6 +72,9 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<'overview' | 'settings' | 'inventory' | 'payments' | 'manuscripts' | 'spam' | 'security'>('overview');
   
+  // Selected book for full editing modal
+  const [editingBook, setEditingBook] = useState<Book | null>(null);
+
   // New book modal
   const [showAddBookModal, setShowAddBookModal] = useState(false);
   const [newTitle, setNewTitle] = useState('');
@@ -374,6 +380,7 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
                     <th className="py-3 px-4 font-semibold">خيارات العرض المتوفرة</th>
                     <th className="py-3 px-4 font-semibold">ثمن البيع المعتمد بالعملة الوطنية</th>
                     <th className="py-3 px-4 font-semibold">الرابط الأمني للخادم</th>
+                    <th className="py-3 px-4 font-semibold text-center">التحكم الكلي</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -412,6 +419,21 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
                           <Lock className="w-3 h-3 text-amber-600" />
                           <span>{b.securityStatus}</span>
                         </span>
+                      </td>
+                      <td className="py-3 px-4 text-center">
+                        <button
+                          onClick={() => {
+                            if (!isAdminAuthenticated) {
+                              onOpenAuthModal();
+                            } else {
+                              setEditingBook(b);
+                            }
+                          }}
+                          className="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold rounded text-[11px] inline-flex items-center gap-1 shadow-xs transition-colors"
+                        >
+                          <Edit2 className="w-3 h-3" />
+                          <span>تعديل كلي</span>
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -560,17 +582,14 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
                       onClick={() => {
                         if (!isAdminAuthenticated) {
                           onOpenAuthModal();
-                          return;
-                        }
-                        const newP = prompt('أدخل سعر النسخة الورقية الجديد (دج):', b.priceDZD.toString());
-                        if (newP && !isNaN(parseInt(newP))) {
-                          onUpdateBook({ ...b, priceDZD: parseInt(newP) });
+                        } else {
+                          setEditingBook(b);
                         }
                       }}
-                      className="px-2.5 py-1 bg-white border border-slate-300 hover:bg-slate-100 rounded text-slate-700 font-semibold flex items-center gap-1"
+                      className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold rounded-lg text-xs flex items-center gap-1.5 shadow-sm transition-colors"
                     >
-                      <Edit2 className="w-3 h-3" />
-                      <span>تعديل السعر</span>
+                      <Edit2 className="w-3.5 h-3.5" />
+                      <span>تعديل معلومات الكتاب كلياً</span>
                     </button>
                   </div>
                 </div>
@@ -1036,6 +1055,22 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
             </div>
           </div>
         </div>
+      )}
+
+      {/* EDIT BOOK MODAL */}
+      {editingBook && (
+        <EditBookModal
+          book={editingBook}
+          onClose={() => setEditingBook(null)}
+          onSave={(updated) => {
+            onUpdateBook(updated);
+            setEditingBook(null);
+          }}
+          onDelete={(id) => {
+            onDeleteBook(id);
+            setEditingBook(null);
+          }}
+        />
       )}
     </div>
   );

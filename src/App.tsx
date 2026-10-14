@@ -92,6 +92,16 @@ export default function App() {
     });
   };
 
+  const handleDeleteBook = (bookId: string) => {
+    setBooks((prev) => {
+      const next = prev.filter((b) => b.id !== bookId);
+      try {
+        localStorage.setItem('roumaissa_books_inventory', JSON.stringify(next));
+      } catch (e) {}
+      return next;
+    });
+  };
+
   // Dynamic KPI Calculations starting from prompt baseline
   const baseSalesFromInitial = 184500;
   const recentAddedSales = transactions
@@ -208,6 +218,7 @@ export default function App() {
               onLogoutAdmin={handleAdminLogout}
               onUpdateSettings={handleUpdateSettings}
               onUpdateBook={handleUpdateBook}
+              onDeleteBook={handleDeleteBook}
               onAddBook={handleAddBook}
               onUpdateManuscriptStatus={handleUpdateManuscriptStatus}
               onApproveDiscussion={() => {}}
