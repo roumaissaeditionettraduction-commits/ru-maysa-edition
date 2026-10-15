@@ -1,6 +1,7 @@
 import React from 'react';
 import { ShieldCheck, MapPin, Mail, Phone, Lock } from 'lucide-react';
 import { HouseSettings } from '../types';
+import { SocialLinks } from './SocialLinks';
 
 interface FooterProps {
   houseSettings: HouseSettings;
@@ -56,6 +57,14 @@ export const Footer: React.FC<FooterProps> = ({ houseSettings }) => {
                 <Phone className="w-3.5 h-3.5 text-amber-400 shrink-0" />
                 <span className="font-mono">{houseSettings.phone1} / {houseSettings.phone2}</span>
               </p>
+            </div>
+
+            {/* Social Media Links Bar */}
+            <div className="pt-2">
+              <span className="text-[10px] text-slate-400 block mb-1.5 font-semibold">
+                قنوات التواصل والمتابعة الرسمية:
+              </span>
+              <SocialLinks settings={houseSettings} variant="footer" />
             </div>
           </div>
 

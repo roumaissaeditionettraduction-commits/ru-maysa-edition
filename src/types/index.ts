@@ -17,6 +17,7 @@ export interface Book {
   year: number;
   isbn: string;
   description: string;
+  coverImageUrl?: string;
   coverGradient: string;
   coverAccent: string;
   coverIcon: string;
@@ -95,4 +96,8 @@ export interface HouseSettings {
   protectionActive: boolean;
   chargilyLiveUrl: string;
   chargilySecretKey: string;
+  facebookUrl?: string;
+  whatsappNumber?: string;
+  instagramUrl?: string;
+  telegramUrl?: string;
 }

@@ -510,13 +510,37 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
         </div>
       )}
 
-      {/* TAB 2: HOUSE & WEBSITE SETTINGS (PRIVATE TO ADMIN) */}
+      {/* TAB 2: HOUSE & WEBSITE SETTINGS (PRIVATE TO ADMIN ONLY) */}
       {activeTab === 'settings' && (
         <div className="space-y-4">
-          <HouseSettingsPanel
-            settings={houseSettings}
-            onSave={(updated) => onUpdateSettings(updated)}
-          />
+          {!isAdminAuthenticated ? (
+            <div className="bg-white rounded-2xl p-8 border border-amber-300 shadow-md text-center max-w-lg mx-auto space-y-4 animate-in fade-in">
+              <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-400/30 text-amber-600 mx-auto flex items-center justify-center">
+                <Lock className="w-8 h-8" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-slate-900">
+                  لوحة تحكم معلومات الدار والموقع خاصة بالمسؤول فقط
+                </h3>
+                <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+                  هذه اللوحة مخصصة حصرياً للمدير العام المسؤول ({houseSettings.managerName}) للتحكم في هوية الدار، الشعار، أرقام الإيداع، ربط منصات التواصل، وأسعار الشحن. يرجى إدخال كلمة المرور للوصول.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={onOpenAuthModal}
+                className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold rounded-xl shadow-lg transition-colors flex items-center justify-center gap-2 text-xs"
+              >
+                <KeyRound className="w-4 h-4" />
+                <span>إدخال كلمة مرور الإدارة لفتح التحكم</span>
+              </button>
+            </div>
+          ) : (
+            <HouseSettingsPanel
+              settings={houseSettings}
+              onSave={(updated) => onUpdateSettings(updated)}
+            />
+          )}
         </div>
       )}
 

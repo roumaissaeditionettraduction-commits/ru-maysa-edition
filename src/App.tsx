@@ -8,6 +8,7 @@ import { ChargilyPayModal } from './components/ChargilyPayModal';
 import { EbookReaderModal } from './components/EbookReaderModal';
 import { ManuscriptSubmissionModal } from './components/ManuscriptSubmissionModal';
 import { AdminAuthModal } from './components/AdminAuthModal';
+import { SocialLinks } from './components/SocialLinks';
 import {
   INITIAL_BOOKS,
   INITIAL_TRANSACTIONS,
@@ -261,6 +262,9 @@ export default function App() {
             onSubmit={handleManuscriptSubmit}
           />
         )}
+
+        {/* Floating Quick Social Contact Buttons */}
+        <SocialLinks settings={houseSettings} variant="floating" />
       </div>
     </SecurityGuard>
   );

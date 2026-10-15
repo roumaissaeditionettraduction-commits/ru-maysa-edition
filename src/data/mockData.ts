@@ -16,7 +16,11 @@ export const DEFAULT_HOUSE_SETTINGS: HouseSettings = {
   adminPassword: "Rumaysa2026@Secure",
   protectionActive: true,
   chargilyLiveUrl: "https://chargily.net",
-  chargilySecretKey: "CH_SECRET_KEY_PROD_XXXXXXXXXXXXXXXXX"
+  chargilySecretKey: "CH_SECRET_KEY_PROD_XXXXXXXXXXXXXXXXX",
+  facebookUrl: "https://facebook.com/dar.roumaissa.edition",
+  whatsappNumber: "+213550189234",
+  instagramUrl: "https://instagram.com/dar_roumaissa_edition",
+  telegramUrl: "https://t.me/roumaissa_editions"
 };
 
 export const INITIAL_BOOKS: Book[] = [

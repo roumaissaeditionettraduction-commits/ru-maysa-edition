@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { Book, DiscussionComment, HouseSettings } from '../types';
 import { BookCover } from './BookCover';
+import { FacebookIcon, WhatsAppIcon, InstagramIcon, TelegramIcon } from './SocialLinks';
 
 interface PublicStorefrontProps {
   books: Book[];
@@ -397,6 +398,115 @@ export const PublicStorefront: React.FC<PublicStorefrontProps> = ({
               محمي بواسطة: Domain Restriction Engine (403 على الروابط الخارجية)
             </p>
           </div>
+        </div>
+      </section>
+
+      {/* Social Media & Direct Channels Connection Section */}
+      <section className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-4">
+          <div>
+            <h3 className="text-xl font-bold font-brand text-slate-900 flex items-center gap-2">
+              <span>قنوات التواصل والمتابعة الرسمية لدار رميساء</span>
+            </h3>
+            <p className="text-xs text-slate-500 mt-1">
+              تواصل مباشرة مع إدارة الدار والمدير العام {houseSettings.managerName}، أو تابع أحدث الإصدارات ومعارض الكتاب عبر منصاتنا المعتمدة:
+            </p>
+          </div>
+          <span className="text-xs text-amber-800 bg-amber-50 border border-amber-200 px-3 py-1 rounded-lg font-medium self-start sm:self-auto">
+            تواصل فوري ومباشر
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* WhatsApp Card */}
+          <a
+            href={`https://wa.me/${(houseSettings.whatsappNumber || houseSettings.phone2 || '213550189234').replace(/[^\d]/g, '')}?text=${encodeURIComponent(
+              `السلام عليكم، أتواصل معكم عبر منصة ${houseSettings.houseName} للاستفسار عن الكتب والإصدارات.`
+            )}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-4 rounded-xl border border-emerald-200 bg-gradient-to-br from-emerald-50/70 to-white hover:border-emerald-400 hover:shadow-md transition-all group flex flex-col justify-between"
+          >
+            <div>
+              <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center mb-3 shadow-sm group-hover:scale-105 transition-transform">
+                <WhatsAppIcon className="w-5 h-5" />
+              </div>
+              <h4 className="font-bold text-slate-900 text-sm">محادثة واتساب مباشرة</h4>
+              <p className="text-xs text-slate-500 mt-1">
+                استفسر فوراً عن توفر الكتب، أسعار الجملة، ومواعيد الشحن والتوصيل.
+              </p>
+            </div>
+            <div className="mt-4 pt-3 border-t border-emerald-100/60 flex items-center justify-between text-xs text-emerald-700 font-bold">
+              <span>بدء محادثة الآن</span>
+              <ArrowRight className="w-3.5 h-3.5 rotate-180 group-hover:-translate-x-1 transition-transform" />
+            </div>
+          </a>
+
+          {/* Facebook Card */}
+          <a
+            href={houseSettings.facebookUrl || 'https://facebook.com'}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-4 rounded-xl border border-blue-200 bg-gradient-to-br from-blue-50/70 to-white hover:border-blue-400 hover:shadow-md transition-all group flex flex-col justify-between"
+          >
+            <div>
+              <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center mb-3 shadow-sm group-hover:scale-105 transition-transform">
+                <FacebookIcon className="w-5 h-5" />
+              </div>
+              <h4 className="font-bold text-slate-900 text-sm">صفحة فيسبوك الرسمية</h4>
+              <p className="text-xs text-slate-500 mt-1">
+                تابع أخبار حفلات التوقيع، الصالونات الأدبية، وجديد كتب دار رميساء.
+              </p>
+            </div>
+            <div className="mt-4 pt-3 border-t border-blue-100/60 flex items-center justify-between text-xs text-blue-700 font-bold">
+              <span>زيارة الصفحة ومتابعتنا</span>
+              <ArrowRight className="w-3.5 h-3.5 rotate-180 group-hover:-translate-x-1 transition-transform" />
+            </div>
+          </a>
+
+          {/* Instagram Card */}
+          <a
+            href={houseSettings.instagramUrl || 'https://instagram.com'}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-4 rounded-xl border border-pink-200 bg-gradient-to-br from-pink-50/70 to-white hover:border-pink-400 hover:shadow-md transition-all group flex flex-col justify-between"
+          >
+            <div>
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 via-rose-600 to-purple-600 text-white flex items-center justify-center mb-3 shadow-sm group-hover:scale-105 transition-transform">
+                <InstagramIcon className="w-5 h-5" />
+              </div>
+              <h4 className="font-bold text-slate-900 text-sm">معرض صور انستغرام</h4>
+              <p className="text-xs text-slate-500 mt-1">
+                استعرض أغلفة الإصدارات الفاخرة، ومقتطفات مصورة من أحدث الكتب.
+              </p>
+            </div>
+            <div className="mt-4 pt-3 border-t border-pink-100/60 flex items-center justify-between text-xs text-pink-700 font-bold">
+              <span>مشاهدة المعرض الرقمي</span>
+              <ArrowRight className="w-3.5 h-3.5 rotate-180 group-hover:-translate-x-1 transition-transform" />
+            </div>
+          </a>
+
+          {/* Telegram Card */}
+          <a
+            href={houseSettings.telegramUrl || 'https://t.me'}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-4 rounded-xl border border-sky-200 bg-gradient-to-br from-sky-50/70 to-white hover:border-sky-400 hover:shadow-md transition-all group flex flex-col justify-between"
+          >
+            <div>
+              <div className="w-10 h-10 rounded-xl bg-sky-500 text-white flex items-center justify-center mb-3 shadow-sm group-hover:scale-105 transition-transform">
+                <TelegramIcon className="w-5 h-5" />
+              </div>
+              <h4 className="font-bold text-slate-900 text-sm">قناة تيليغرام الثقافية</h4>
+              <p className="text-xs text-slate-500 mt-1">
+                انضم لقناتنا لتلقي التنبيهات الفورية بالإصدارات الجديدة وتنزيل الفهارس.
+              </p>
+            </div>
+            <div className="mt-4 pt-3 border-t border-sky-100/60 flex items-center justify-between text-xs text-sky-700 font-bold">
+              <span>الانضمام للقناة</span>
+              <ArrowRight className="w-3.5 h-3.5 rotate-180 group-hover:-translate-x-1 transition-transform" />
+            </div>
+          </a>
         </div>
       </section>
 

@@ -12,10 +12,12 @@ import {
   CheckCircle2,
   Lock,
   CreditCard,
-  FileBadge
+  FileBadge,
+  Share2
 } from 'lucide-react';
 import { HouseSettings } from '../types';
 import { DEFAULT_HOUSE_SETTINGS } from '../data/mockData';
+import { FacebookIcon, WhatsAppIcon, InstagramIcon, TelegramIcon } from './SocialLinks';
 
 interface HouseSettingsPanelProps {
   settings: HouseSettings;
@@ -274,7 +276,104 @@ export const HouseSettingsPanel: React.FC<HouseSettingsPanelProps> = ({
         </div>
       </div>
 
-      {/* 4. الأمان وكلمة المرور الخاصة للمسؤول */}
+      {/* 4. ربط قنوات التواصل الاجتماعي (فيسبوك، واتساب، انستقرام، تليقرام) */}
+      <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+          <h3 className="font-bold text-sm text-slate-900 flex items-center gap-2">
+            <Share2 className="w-4 h-4 text-amber-600" />
+            <span>ربط قنوات التواصل الاجتماعي المباشرة (Facebook, WhatsApp, Instagram, Telegram)</span>
+          </h3>
+          <span className="text-[11px] text-slate-400">تظهر في أعلى وأسفل الموقع والزر العائم للتواصل الفوري</span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* WhatsApp */}
+          <div className="p-3.5 rounded-xl border border-emerald-200 bg-emerald-50/40 space-y-2">
+            <div className="flex items-center gap-2 text-emerald-800 font-bold text-xs">
+              <div className="w-6 h-6 rounded-md bg-emerald-600 text-white flex items-center justify-center">
+                <WhatsAppIcon className="w-3.5 h-3.5" />
+              </div>
+              <span>رقم الواتساب للمحادثات الفورية (WhatsApp)</span>
+            </div>
+            <input
+              type="text"
+              placeholder="+213 550 18 92 34"
+              value={formData.whatsappNumber || ''}
+              onChange={(e) => setFormData({ ...formData, whatsappNumber: e.target.value })}
+              className="w-full px-3 py-2 border border-emerald-300 rounded-lg outline-none font-mono bg-white text-xs focus:ring-2 focus:ring-emerald-500"
+              dir="ltr"
+            />
+            <p className="text-[10px] text-emerald-700">
+              يُمكّن القراء من بدء محادثة مباشرة بنقرة واحدة عبر الزر العائم وزر الاستفسار.
+            </p>
+          </div>
+
+          {/* Facebook */}
+          <div className="p-3.5 rounded-xl border border-blue-200 bg-blue-50/40 space-y-2">
+            <div className="flex items-center gap-2 text-blue-800 font-bold text-xs">
+              <div className="w-6 h-6 rounded-md bg-blue-600 text-white flex items-center justify-center">
+                <FacebookIcon className="w-3.5 h-3.5" />
+              </div>
+              <span>رابط صفحة الفيسبوك الرسمية (Facebook URL)</span>
+            </div>
+            <input
+              type="url"
+              placeholder="https://facebook.com/dar.roumaissa.edition"
+              value={formData.facebookUrl || ''}
+              onChange={(e) => setFormData({ ...formData, facebookUrl: e.target.value })}
+              className="w-full px-3 py-2 border border-blue-300 rounded-lg outline-none font-mono bg-white text-xs focus:ring-2 focus:ring-blue-500"
+              dir="ltr"
+            />
+            <p className="text-[10px] text-blue-700">
+              رابط صفحة دار رميساء على فيسبوك لمتابعة أحدث أخبار النشر والندوات.
+            </p>
+          </div>
+
+          {/* Instagram */}
+          <div className="p-3.5 rounded-xl border border-pink-200 bg-pink-50/40 space-y-2">
+            <div className="flex items-center gap-2 text-pink-800 font-bold text-xs">
+              <div className="w-6 h-6 rounded-md bg-pink-600 text-white flex items-center justify-center">
+                <InstagramIcon className="w-3.5 h-3.5" />
+              </div>
+              <span>رابط حساب الانستغرام (Instagram URL)</span>
+            </div>
+            <input
+              type="url"
+              placeholder="https://instagram.com/dar_roumaissa_edition"
+              value={formData.instagramUrl || ''}
+              onChange={(e) => setFormData({ ...formData, instagramUrl: e.target.value })}
+              className="w-full px-3 py-2 border border-pink-300 rounded-lg outline-none font-mono bg-white text-xs focus:ring-2 focus:ring-pink-500"
+              dir="ltr"
+            />
+            <p className="text-[10px] text-pink-700">
+              رابط الحساب الرسمي لعرض صور الكتب وأغلفة الإصدارات الجديدة.
+            </p>
+          </div>
+
+          {/* Telegram */}
+          <div className="p-3.5 rounded-xl border border-sky-200 bg-sky-50/40 space-y-2">
+            <div className="flex items-center gap-2 text-sky-800 font-bold text-xs">
+              <div className="w-6 h-6 rounded-md bg-sky-600 text-white flex items-center justify-center">
+                <TelegramIcon className="w-3.5 h-3.5" />
+              </div>
+              <span>رابط قناة التليغرام (Telegram Channel)</span>
+            </div>
+            <input
+              type="url"
+              placeholder="https://t.me/roumaissa_editions"
+              value={formData.telegramUrl || ''}
+              onChange={(e) => setFormData({ ...formData, telegramUrl: e.target.value })}
+              className="w-full px-3 py-2 border border-sky-300 rounded-lg outline-none font-mono bg-white text-xs focus:ring-2 focus:ring-sky-500"
+              dir="ltr"
+            />
+            <p className="text-[10px] text-sky-700">
+              قناة تليغرام لبث إعلانات الكتب وتوزيع المقتطفات والمسودات المعتمدة.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* 5. الأمان وكلمة المرور الخاصة للمسؤول */}
       <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <h3 className="font-bold text-sm text-slate-900 flex items-center gap-2">

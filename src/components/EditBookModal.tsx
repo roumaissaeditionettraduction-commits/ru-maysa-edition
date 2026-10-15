@@ -13,7 +13,9 @@ import {
   Crown,
   Gem,
   Clock,
-  Mountain
+  Mountain,
+  Plus,
+  Image as ImageIcon
 } from 'lucide-react';
 import { Book } from '../types';
 import { BookCover } from './BookCover';
@@ -53,16 +55,16 @@ export const EditBookModal: React.FC<EditBookModalProps> = ({
   const [year, setYear] = useState(book.year.toString());
   const [pageCount, setPageCount] = useState(book.pageCount.toString());
   const [description, setDescription] = useState(book.description);
-  
-  // Chapter 1 content
-  const [chapterTitle, setChapterTitle] = useState(
-    book.sampleChapters[0]?.title || 'الفصل الأول'
-  );
-  const [chapterContent, setChapterContent] = useState(
-    book.sampleChapters[0]?.content || ''
+
+  // All sample chapters
+  const [chapters, setChapters] = useState<{ number: number; title: string; content: string }[]>(
+    book.sampleChapters && book.sampleChapters.length > 0
+      ? book.sampleChapters
+      : [{ number: 1, title: 'الفصل الأول', content: 'نص الفصل الأول للمصنف.' }]
   );
 
   // Appearance
+  const [coverImageUrl, setCoverImageUrl] = useState(book.coverImageUrl || '');
   const [coverGradient, setCoverGradient] = useState(book.coverGradient);
   const [coverIcon, setCoverIcon] = useState(book.coverIcon);
 
@@ -86,16 +88,10 @@ export const EditBookModal: React.FC<EditBookModalProps> = ({
     year: parseInt(year) || 2024,
     pageCount: parseInt(pageCount) || 100,
     description,
+    coverImageUrl: coverImageUrl.trim() || undefined,
     coverGradient,
     coverIcon,
-    sampleChapters: [
-      {
-        number: 1,
-        title: chapterTitle,
-        content: chapterContent
-      },
-      ...(book.sampleChapters.slice(1))
-    ]
+    sampleChapters: chapters
   };
 
   const handleCategoryChange = (newCat: Book['category']) => {
@@ -117,6 +113,34 @@ export const EditBookModal: React.FC<EditBookModalProps> = ({
         setCategoryLabel('دراسات أكاديمية');
         break;
     }
+  };
+
+  const handleChapterChange = (index: number, field: 'title' | 'content', value: string) => {
+    setChapters((prev) => {
+      const copy = [...prev];
+      copy[index] = { ...copy[index], [field]: value };
+      return copy;
+    });
+  };
+
+  const handleAddChapter = () => {
+    const nextNum = chapters.length + 1;
+    setChapters((prev) => [
+      ...prev,
+      {
+        number: nextNum,
+        title: `الفصل ${nextNum}: عنوان جديد`,
+        content: `نص الفصل ${nextNum} المعتمد من دار رميساء للنشر والترجمة...`
+      }
+    ]);
+  };
+
+  const handleRemoveChapter = (index: number) => {
+    if (chapters.length <= 1) {
+      alert('يجب الإبقاء على فصل واحد على الأقل للقارئ المشفر!');
+      return;
+    }
+    setChapters((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -222,7 +246,7 @@ export const EditBookModal: React.FC<EditBookModalProps> = ({
             }`}
           >
             <Layers className="w-3.5 h-3.5" />
-            <span>3. فصول القارئ المشفر والملخص</span>
+            <span>3. فصول القارئ المشفر والملخص ({chapters.length})</span>
           </button>
 
           <button
@@ -263,6 +287,10 @@ export const EditBookModal: React.FC<EditBookModalProps> = ({
               <div className="flex justify-between">
                 <span className="text-slate-500">المخزون:</span>
                 <span className="text-emerald-700 font-semibold">{stockStatus}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">الفصول المتاحة:</span>
+                <span className="text-blue-700 font-semibold">{chapters.length} فصول</span>
               </div>
             </div>
           </div>
@@ -431,7 +459,7 @@ export const EditBookModal: React.FC<EditBookModalProps> = ({
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
                     <label className="block font-semibold text-slate-700 mb-1">رقم ISBN</label>
                     <input
@@ -460,10 +488,23 @@ export const EditBookModal: React.FC<EditBookModalProps> = ({
                     />
                   </div>
                 </div>
+
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">
+                    الرابط الأمني للخادم وحالة الحماية
+                  </label>
+                  <input
+                    type="text"
+                    value={securityStatus}
+                    onChange={(e) => setSecurityStatus(e.target.value)}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg outline-none font-mono text-slate-700"
+                    placeholder="مثال: مؤمن / للقراءة فقط"
+                  />
+                </div>
               </div>
             )}
 
-            {/* SECTION 3: SYNOPSIS & CHAPTER CONTENT */}
+            {/* SECTION 3: SYNOPSIS & MULTI-CHAPTER CONTENT */}
             {activeSection === 'content' && (
               <div className="space-y-4 animate-in fade-in">
                 <div>
@@ -478,32 +519,80 @@ export const EditBookModal: React.FC<EditBookModalProps> = ({
                   />
                 </div>
 
-                <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
+                {/* Multiple Chapters Manager */}
+                <div className="space-y-3">
                   <div className="flex items-center justify-between border-b border-slate-200 pb-2">
-                    <span className="font-bold text-slate-900">محتوى الفصل الأول في القارئ المشفر</span>
-                    <span className="text-[10px] text-amber-700 bg-amber-100 px-2 py-0.5 rounded">
-                      يظهر للقارئ مع علامة الحماية المائية
-                    </span>
+                    <div>
+                      <span className="font-bold text-slate-900 text-sm">
+                        فصول القارئ الرقمي المشفر ({chapters.length})
+                      </span>
+                      <p className="text-[11px] text-slate-500">
+                        تظهر للقارئ مع العلامة المائية المشفرة لمنع النسخ والتصوير
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handleAddChapter}
+                      className="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg flex items-center gap-1 transition-colors text-xs shadow-sm"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>إضافة فصل جديد</span>
+                    </button>
                   </div>
 
-                  <div>
-                    <label className="block font-semibold text-slate-700 mb-1">عنوان الفصل</label>
-                    <input
-                      type="text"
-                      value={chapterTitle}
-                      onChange={(e) => setChapterTitle(e.target.value)}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg outline-none font-semibold"
-                    />
-                  </div>
+                  <div className="space-y-3 max-h-96 overflow-y-auto pr-1">
+                    {chapters.map((chap, idx) => (
+                      <div
+                        key={idx}
+                        className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-2 relative"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-amber-900 text-xs flex items-center gap-1.5">
+                            <span className="w-5 h-5 rounded-full bg-amber-200 text-amber-900 flex items-center justify-center font-mono text-[10px]">
+                              {idx + 1}
+                            </span>
+                            <span>الفصل رقم {idx + 1}</span>
+                          </span>
 
-                  <div>
-                    <label className="block font-semibold text-slate-700 mb-1">نص الفصل للقراءة</label>
-                    <textarea
-                      rows={5}
-                      value={chapterContent}
-                      onChange={(e) => setChapterContent(e.target.value)}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-amber-500 leading-relaxed font-literary text-xs"
-                    />
+                          {chapters.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveChapter(idx)}
+                              className="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50 transition-colors"
+                              title="حذف هذا الفصل"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </div>
+
+                        <div>
+                          <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
+                            عنوان الفصل:
+                          </label>
+                          <input
+                            type="text"
+                            value={chap.title}
+                            onChange={(e) => handleChapterChange(idx, 'title', e.target.value)}
+                            className="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg outline-none font-semibold text-xs"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
+                            نص الفصل:
+                          </label>
+                          <textarea
+                            rows={4}
+                            value={chap.content}
+                            onChange={(e) => handleChapterChange(idx, 'content', e.target.value)}
+                            className="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-amber-500 leading-relaxed font-literary text-xs"
+                            placeholder="اكتب أو الصق نص الفصل المخصص للمعاينة والقراءة..."
+                          />
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -512,6 +601,25 @@ export const EditBookModal: React.FC<EditBookModalProps> = ({
             {/* SECTION 4: APPEARANCE & COVER */}
             {activeSection === 'appearance' && (
               <div className="space-y-4 animate-in fade-in">
+                {/* Custom Image Cover URL */}
+                <div className="p-3.5 bg-amber-50/50 border border-amber-200 rounded-xl space-y-2">
+                  <label className="block font-semibold text-amber-950 mb-1 flex items-center gap-1.5">
+                    <ImageIcon className="w-4 h-4 text-amber-700" />
+                    <span>رابط صورة الغلاف المخصصة (Cover Image URL)</span>
+                  </label>
+                  <input
+                    type="url"
+                    placeholder="https://example.com/cover.jpg (اتركه فارغاً لاستخدام الغلاف الجلدي التراثي المذهب)"
+                    value={coverImageUrl}
+                    onChange={(e) => setCoverImageUrl(e.target.value)}
+                    className="w-full px-3 py-2 border border-amber-300 rounded-lg outline-none font-mono text-[11px] bg-white text-slate-800"
+                    dir="ltr"
+                  />
+                  <p className="text-[10px] text-amber-800">
+                    يمكنك وضع رابط صورة خارجية لغلاف الكتاب الحقيقي، وسيتم دمجه تلقائياً مع تأثيرات التجليد والعمق ورمز الإيداع.
+                  </p>
+                </div>
+
                 <div>
                   <label className="block font-semibold text-slate-700 mb-2">
                     نمط تدرج لون الغلاف الفاخر (Cover Gradient)

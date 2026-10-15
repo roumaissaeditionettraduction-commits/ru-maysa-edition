@@ -1,6 +1,6 @@
-import React from 'react';
 import { ShieldCheck, BookOpen, UserCheck, LayoutDashboard, Lock, Unlock } from 'lucide-react';
 import { HouseSettings } from '../types';
+import { SocialLinks } from './SocialLinks';
 
 interface HeaderProps {
   currentView: 'store' | 'admin';
@@ -82,8 +82,9 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
         </nav>
 
-        {/* Zone 3: 1 Primary Action (Toggle between Store and Executive Dashboard) */}
-        <div className="flex items-center gap-2 shrink-0">
+        {/* Zone 3: 1 Primary Action + Social Media Quick Access */}
+        <div className="flex items-center gap-3 shrink-0">
+          <SocialLinks settings={houseSettings} variant="header" className="hidden lg:flex pl-2 border-l border-slate-700/80" />
           {currentView === 'store' ? (
             <button
               onClick={() => onViewChange('admin')}

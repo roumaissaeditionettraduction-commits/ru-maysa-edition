@@ -49,9 +49,23 @@ export const BookCover: React.FC<BookCoverProps> = ({
       <div
         className={`w-full h-full rounded-r-md rounded-l-sm p-3 flex flex-col justify-between overflow-hidden relative border border-amber-500/20 bg-gradient-to-br ${book.coverGradient}`}
       >
+        {book.coverImageUrl && (
+          <div className="absolute inset-0 z-0">
+            <img
+              src={book.coverImageUrl}
+              alt={book.title}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                (e.target as HTMLElement).style.display = 'none';
+              }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/30 to-slate-950/50" />
+          </div>
+        )}
+
         {/* Subtle patterned gold filigree borders */}
-        <div className="absolute inset-2 border border-amber-400/20 rounded pointer-events-none" />
-        <div className="absolute inset-3 border border-amber-400/10 rounded pointer-events-none" />
+        <div className="absolute inset-2 border border-amber-400/20 rounded pointer-events-none z-10" />
+        <div className="absolute inset-3 border border-amber-400/10 rounded pointer-events-none z-10" />
 
         {/* Top Header: Publishing House Emblem */}
         <div className="relative z-10 text-center pt-1">
