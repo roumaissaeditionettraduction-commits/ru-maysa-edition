@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <radialGradient id="bgGrad" cx="50%" cy="40%" r="65%">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="60%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#020617"/>
+    </radialGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="30%" stop-color="#eab308"/>
+      <stop offset="70%" stop-color="#ca8a04"/>
+      <stop offset="100%" stop-color="#854d0e"/>
+    </linearGradient>
+    <linearGradient id="goldAccent" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fef9c3"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Background Canvas -->
+  <rect width="512" height="512" rx="100" fill="url(#bgGrad)"/>
+
+  <!-- Ornate Golden Borders -->
+  <rect x="24" y="24" width="464" height="464" rx="84" fill="none" stroke="url(#goldGrad)" stroke-width="4" opacity="0.6"/>
+  <rect x="36" y="36" width="440" height="440" rx="72" fill="none" stroke="url(#goldGrad)" stroke-width="2" opacity="0.4"/>
+
+  <!-- Center Decorative Medallion -->
+  <circle cx="256" cy="256" r="180" fill="#0f172a" stroke="url(#goldGrad)" stroke-width="3" opacity="0.9"/>
+  <circle cx="256" cy="256" r="168" fill="none" stroke="url(#goldGrad)" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.7"/>
+
+  <!-- Crown / Diadem at top of medallion -->
+  <path d="M226 140 L236 170 L256 150 L276 170 L286 140 L294 185 L218 185 Z" fill="url(#goldGrad)" filter="url(#glow)"/>
+  <circle cx="226" cy="135" r="4" fill="#fef08a"/>
+  <circle cx="256" cy="144" r="5" fill="#fef08a"/>
+  <circle cx="286" cy="135" r="4" fill="#fef08a"/>
+
+  <!-- Open Book Base Silhouette -->
+  <path d="M190 310 Q256 320 256 345 Q256 320 322 310 C340 310 350 315 350 325 C350 335 330 365 256 370 C182 365 162 335 162 325 C162 315 172 310 190 310 Z" fill="url(#goldGrad)" opacity="0.85"/>
+  <path d="M172 322 Q256 340 256 365 Q256 340 340 322" stroke="#020617" stroke-width="3" fill="none"/>
+
+  <!-- Central Arabic Calligraphic Monogram 'ر' (Roumaissa) -->
+  <path d="M 276 195 C 276 195, 292 205, 290 220 C 288 235, 268 250, 252 268 C 230 292, 215 320, 192 338 C 182 346, 172 348, 168 342 C 164 336, 172 326, 184 314 C 206 292, 235 258, 248 238 C 256 226, 260 216, 252 212 C 242 208, 232 216, 228 222 C 224 228, 218 226, 220 218 C 224 204, 246 192, 276 195 Z" fill="url(#goldAccent)" filter="url(#glow)"/>
+
+  <!-- Star of Authenticity (Legal BNA Registration mark) -->
+  <polygon points="256,104 260,116 272,116 262,124 266,136 256,128 246,136 250,124 240,116 252,116" fill="url(#goldAccent)"/>
+
+  <!-- Bottom Arch Text: ROUMAISSA -->
+  <text x="256" y="420" font-family="'Segoe UI', Arial, sans-serif" font-size="24" font-weight="bold" fill="url(#goldGrad)" text-anchor="middle" letter-spacing="6">
+    ROUMAISSA
+  </text>
+  <text x="256" y="445" font-family="Arial, sans-serif" font-size="14" font-weight="600" fill="#94a3b8" text-anchor="middle" letter-spacing="3">
+    EDITIONS • TIZI OUZOU
+  </text>
+</svg>

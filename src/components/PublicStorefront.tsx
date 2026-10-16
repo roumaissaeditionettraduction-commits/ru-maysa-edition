@@ -18,6 +18,7 @@ import {
 import { Book, DiscussionComment, HouseSettings } from '../types';
 import { BookCover } from './BookCover';
 import { FacebookIcon, WhatsAppIcon, InstagramIcon, TelegramIcon } from './SocialLinks';
+import { PWAInstallButton } from './PWAInstallButton';
 
 interface PublicStorefrontProps {
   books: Book[];
@@ -172,6 +173,9 @@ export const PublicStorefront: React.FC<PublicStorefrontProps> = ({
           </div>
         </div>
       </section>
+
+      {/* PWA Install Invitation Banner for Mobile & Desktop */}
+      <PWAInstallButton variant="banner" />
 
       {/* Main Catalog Section */}
       <section id="catalog" className="space-y-6">
