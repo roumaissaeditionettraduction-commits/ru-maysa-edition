@@ -13,7 +13,12 @@ import {
   CheckCircle,
   Award,
   Video,
-  FileText
+  FileText,
+  Bookmark,
+  Globe,
+  Smartphone,
+  Download,
+  Check
 } from 'lucide-react';
 import { Book, DiscussionComment, HouseSettings } from '../types';
 import { BookCover } from './BookCover';
@@ -28,6 +33,11 @@ interface PublicStorefrontProps {
   onSelectBookForReading: (book: Book) => void;
   onOpenManuscriptModal: () => void;
   onAddDiscussion: (comment: { authorName: string; bookTitle: string; comment: string }) => void;
+  savedBookIds?: string[];
+  onToggleSaveBook?: (bookId: string) => void;
+  experienceMode?: 'web' | 'app';
+  onExperienceModeChange?: (mode: 'web' | 'app') => void;
+  onOpenLibrary?: () => void;
 }
 
 export const PublicStorefront: React.FC<PublicStorefrontProps> = ({
@@ -37,7 +47,12 @@ export const PublicStorefront: React.FC<PublicStorefrontProps> = ({
   onSelectBookForPayment,
   onSelectBookForReading,
   onOpenManuscriptModal,
-  onAddDiscussion
+  onAddDiscussion,
+  savedBookIds = [],
+  onToggleSaveBook = () => {},
+  experienceMode = 'web',
+  onExperienceModeChange,
+  onOpenLibrary
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -319,7 +334,7 @@ export const PublicStorefront: React.FC<PublicStorefrontProps> = ({
                   className="flex-1 py-2 px-3 bg-slate-900 hover:bg-slate-800 text-amber-300 font-bold rounded-lg shadow-sm transition-colors flex items-center justify-center gap-1.5"
                 >
                   <CreditCard className="w-3.5 h-3.5 text-amber-400" />
-                  <span>شراء بالذهبية (Chargily)</span>
+                  <span>شراء بالذهبية</span>
                 </button>
 
                 <button
@@ -329,6 +344,26 @@ export const PublicStorefront: React.FC<PublicStorefrontProps> = ({
                 >
                   <Eye className="w-3.5 h-3.5" />
                   <span>معاينة</span>
+                </button>
+
+                <button
+                  onClick={() => onToggleSaveBook(book.id)}
+                  className={`p-2 rounded-lg border transition-colors ${
+                    savedBookIds.includes(book.id)
+                      ? 'bg-amber-500 text-slate-950 border-amber-600 shadow-xs'
+                      : 'border-slate-300 hover:bg-amber-50 text-slate-600 hover:text-amber-800'
+                  }`}
+                  title={
+                    savedBookIds.includes(book.id)
+                      ? 'الكتاب محفوظ في مكتبتك دون إنترنت (انقر للإزالة)'
+                      : 'حفظ في مكتبتي الشخصية للقراءة أوفلاين'
+                  }
+                >
+                  <Bookmark
+                    className={`w-3.5 h-3.5 ${
+                      savedBookIds.includes(book.id) ? 'fill-current' : ''
+                    }`}
+                  />
                 </button>
               </div>
             </article>

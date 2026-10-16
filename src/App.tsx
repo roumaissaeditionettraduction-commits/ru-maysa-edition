@@ -10,6 +10,9 @@ import { ManuscriptSubmissionModal } from './components/ManuscriptSubmissionModa
 import { AdminAuthModal } from './components/AdminAuthModal';
 import { SocialLinks } from './components/SocialLinks';
 import { OfflineIndicator } from './components/OfflineIndicator';
+import { DualModeBanner } from './components/DualModeBanner';
+import { MobileBottomNav } from './components/MobileBottomNav';
+import { MyLibraryModal } from './components/MyLibraryModal';
 import {
   INITIAL_BOOKS,
   INITIAL_TRANSACTIONS,
@@ -64,6 +67,49 @@ export default function App() {
   } | null>(null);
   const [readingBook, setReadingBook] = useState<Book | null>(null);
   const [showManuscriptModal, setShowManuscriptModal] = useState<boolean>(false);
+  const [showLibraryModal, setShowLibraryModal] = useState<boolean>(false);
+
+  // Dual Experience Mode: 'web' (Website Portal) vs 'app' (Smart Native-like App)
+  const [experienceMode, setExperienceMode] = useState<'web' | 'app'>(() => {
+    try {
+      const isStandalone =
+        window.matchMedia('(display-mode: standalone)').matches ||
+        (window.navigator as unknown as { standalone?: boolean }).standalone === true;
+      if (isStandalone) return 'app';
+      const saved = localStorage.getItem('roumaissa_experience_mode');
+      if (saved === 'app' || saved === 'web') return saved;
+      if (window.innerWidth < 768) return 'app';
+    } catch (e) {}
+    return 'web';
+  });
+
+  // Personal Offline Library (Saved Books for reading anytime)
+  const [savedBookIds, setSavedBookIds] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem('roumaissa_saved_library');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return ['book-1', 'book-2'];
+  });
+
+  const handleToggleSaveBook = (bookId: string) => {
+    setSavedBookIds((prev) => {
+      const next = prev.includes(bookId)
+        ? prev.filter((id) => id !== bookId)
+        : [...prev, bookId];
+      try {
+        localStorage.setItem('roumaissa_saved_library', JSON.stringify(next));
+      } catch (e) {}
+      return next;
+    });
+  };
+
+  const handleExperienceModeChange = (mode: 'web' | 'app') => {
+    setExperienceMode(mode);
+    try {
+      localStorage.setItem('roumaissa_experience_mode', mode);
+    } catch (e) {}
+  };
 
   // Save settings when changed
   const handleUpdateSettings = (updated: HouseSettings) => {
@@ -184,6 +230,14 @@ export default function App() {
   return (
     <SecurityGuard>
       <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans">
+        {/* Dual Mode Announcement & Switcher (Website 🌐 & App 📱 at the same time) */}
+        <DualModeBanner
+          mode={experienceMode}
+          onModeChange={handleExperienceModeChange}
+          onOpenLibrary={() => setShowLibraryModal(true)}
+          savedBooksCount={savedBookIds.length}
+        />
+
         {/* Top Navbar */}
         <Header
           currentView={currentView}
@@ -191,10 +245,14 @@ export default function App() {
           isAdminAuthenticated={isAdminAuthenticated}
           onViewChange={setCurrentView}
           onOpenManuscriptModal={() => setShowManuscriptModal(true)}
+          onOpenLibrary={() => setShowLibraryModal(true)}
+          savedBooksCount={savedBookIds.length}
+          experienceMode={experienceMode}
+          onExperienceModeChange={handleExperienceModeChange}
         />
 
-        {/* Main Content Area */}
-        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Main Content Area (Extra bottom padding on mobile for MobileBottomNav) */}
+        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-8">
           {currentView === 'store' ? (
             <PublicStorefront
               books={books}
@@ -204,6 +262,11 @@ export default function App() {
               onSelectBookForReading={(book) => setReadingBook(book)}
               onOpenManuscriptModal={() => setShowManuscriptModal(true)}
               onAddDiscussion={handleAddDiscussion}
+              savedBookIds={savedBookIds}
+              onToggleSaveBook={handleToggleSaveBook}
+              experienceMode={experienceMode}
+              onExperienceModeChange={handleExperienceModeChange}
+              onOpenLibrary={() => setShowLibraryModal(true)}
             />
           ) : (
             <ExecutiveDashboard
@@ -232,7 +295,28 @@ export default function App() {
         {/* Footer */}
         <Footer houseSettings={houseSettings} />
 
+        {/* Mobile Native App Bottom Navigation Bar */}
+        <MobileBottomNav
+          currentView={currentView}
+          onViewChange={setCurrentView}
+          onOpenManuscriptModal={() => setShowManuscriptModal(true)}
+          onOpenLibrary={() => setShowLibraryModal(true)}
+          savedBooksCount={savedBookIds.length}
+          isAdminAuthenticated={isAdminAuthenticated}
+        />
+
         {/* Modals */}
+        {showLibraryModal && (
+          <MyLibraryModal
+            savedBookIds={savedBookIds}
+            allBooks={books}
+            onClose={() => setShowLibraryModal(false)}
+            onRemoveBook={handleToggleSaveBook}
+            onSelectBookForReading={(book) => setReadingBook(book)}
+            onSelectBookForPayment={(book, format) => setPaymentTarget({ book, format })}
+          />
+        )}
+
         {showAuthModal && (
           <AdminAuthModal
             currentPassword={houseSettings.adminPassword}
