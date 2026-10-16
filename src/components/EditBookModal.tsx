@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { Book } from '../types';
 import { BookCover } from './BookCover';
+import { CoverImageUploader } from './CoverImageUploader';
 
 interface EditBookModalProps {
   book: Book;
@@ -274,6 +275,15 @@ export const EditBookModal: React.FC<EditBookModalProps> = ({
             <div className="my-auto py-2">
               <BookCover book={previewBook} size="md" />
             </div>
+
+            <button
+              type="button"
+              onClick={() => setActiveSection('appearance')}
+              className="mt-1 mb-2 px-3 py-1.5 bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-xs"
+            >
+              <ImageIcon className="w-3.5 h-3.5 text-amber-700" />
+              <span>{coverImageUrl ? 'تعديل أو تغيير صورة الغلاف' : 'رفع صورة للغلاف من الجهاز'}</span>
+            </button>
 
             <div className="w-full mt-4 pt-3 border-t border-slate-200 text-right text-xs space-y-1">
               <div className="flex justify-between">
@@ -601,23 +611,14 @@ export const EditBookModal: React.FC<EditBookModalProps> = ({
             {/* SECTION 4: APPEARANCE & COVER */}
             {activeSection === 'appearance' && (
               <div className="space-y-4 animate-in fade-in">
-                {/* Custom Image Cover URL */}
-                <div className="p-3.5 bg-amber-50/50 border border-amber-200 rounded-xl space-y-2">
-                  <label className="block font-semibold text-amber-950 mb-1 flex items-center gap-1.5">
-                    <ImageIcon className="w-4 h-4 text-amber-700" />
-                    <span>رابط صورة الغلاف المخصصة (Cover Image URL)</span>
-                  </label>
-                  <input
-                    type="url"
-                    placeholder="https://example.com/cover.jpg (اتركه فارغاً لاستخدام الغلاف الجلدي التراثي المذهب)"
+                {/* Custom Image Cover File Upload */}
+                <div className="p-4 bg-amber-50/50 border border-amber-200 rounded-2xl shadow-xs">
+                  <CoverImageUploader
                     value={coverImageUrl}
-                    onChange={(e) => setCoverImageUrl(e.target.value)}
-                    className="w-full px-3 py-2 border border-amber-300 rounded-lg outline-none font-mono text-[11px] bg-white text-slate-800"
-                    dir="ltr"
+                    onChange={(val) => setCoverImageUrl(val || '')}
+                    label="رفع صورة غلاف الكتاب من الهاتف أو الكمبيوتر"
+                    description="اختر ملف صورة من جهازك؛ ستتم معالجتها وضغطها تلقائياً لتكون خفيفة وفائقة الدقة مع الحفاظ على التجليد والعمق والختم الرسمي."
                   />
-                  <p className="text-[10px] text-amber-800">
-                    يمكنك وضع رابط صورة خارجية لغلاف الكتاب الحقيقي، وسيتم دمجه تلقائياً مع تأثيرات التجليد والعمق ورمز الإيداع.
-                  </p>
                 </div>
 
                 <div>

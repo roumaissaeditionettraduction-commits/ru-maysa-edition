@@ -28,6 +28,7 @@ import {
 import { Book, Transaction, ManuscriptSubmission, SpamLog, DiscussionComment, HouseSettings } from '../types';
 import { HouseSettingsPanel } from './HouseSettingsPanel';
 import { EditBookModal } from './EditBookModal';
+import { CoverImageUploader } from './CoverImageUploader';
 
 interface ExecutiveDashboardProps {
   books: Book[];
@@ -83,6 +84,7 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
   const [newEbookPrice, setNewEbookPrice] = useState('800');
   const [newCategory, setNewCategory] = useState<'literature' | 'translation' | 'mystery' | 'history'>('literature');
   const [newStockStatus, setNewStockStatus] = useState('متاح في المستودع');
+  const [newCoverImageUrl, setNewCoverImageUrl] = useState<string | undefined>(undefined);
 
   // Selected Transaction for receipt view
   const [selectedTx, setSelectedTx] = useState<Transaction | null>(null);
@@ -117,6 +119,7 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
       year: new Date().getFullYear(),
       isbn: `978-9931-78-${Math.floor(100 + Math.random() * 899)}-1`,
       description: 'كتاب جديد تمت إضافته لقائمة إصدارات دار رميساء للنشر والترجمة.',
+      coverImageUrl: newCoverImageUrl || undefined,
       coverGradient: 'from-slate-900 via-amber-950 to-slate-950',
       coverAccent: '#d4af37',
       coverIcon: 'crown',
@@ -133,6 +136,7 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
     setShowAddBookModal(false);
     setNewTitle('');
     setNewAuthor('');
+    setNewCoverImageUrl(undefined);
   };
 
   const handleTestDomainRestriction = () => {
@@ -918,7 +922,7 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
       {/* ADD BOOK MODAL */}
       {showAddBookModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 text-xs text-slate-800 space-y-4 border border-slate-200">
+          <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6 text-xs text-slate-800 space-y-4 border border-slate-200">
             <div className="flex items-center justify-between border-b border-slate-200 pb-3">
               <h4 className="text-sm font-bold text-slate-900">إضافة مصنف أو كتاب جديد إلى متجر {houseSettings.houseName}</h4>
               <button onClick={() => setShowAddBookModal(false)} className="text-slate-400 hover:text-slate-700">
@@ -947,6 +951,17 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
                   onChange={(e) => setNewAuthor(e.target.value)}
                   placeholder={`مثال: ${houseSettings.managerName}`}
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-amber-500"
+                />
+              </div>
+
+              {/* Cover Image Upload (From Phone or Computer) */}
+              <div className="p-3 bg-amber-50/50 rounded-xl border border-amber-200">
+                <CoverImageUploader
+                  value={newCoverImageUrl}
+                  onChange={setNewCoverImageUrl}
+                  label="صورة غلاف الكتاب (من الهاتف أو الكمبيوتر)"
+                  description="ارفع صورة الغلاف مباشرة؛ إن تُركت فارغة سيتم توليد غلاف مذهب فاخر تلقائياً."
+                  compact={true}
                 />
               </div>
 

@@ -46,63 +46,94 @@ export const BookCover: React.FC<BookCoverProps> = ({
       <div className="absolute top-0 right-2 bottom-0 w-0.5 bg-black/30 z-20" />
 
       {/* Main Cover Body */}
+      {/* Main Cover Body */}
       <div
         className={`w-full h-full rounded-r-md rounded-l-sm p-3 flex flex-col justify-between overflow-hidden relative border border-amber-500/20 bg-gradient-to-br ${book.coverGradient}`}
       >
-        {book.coverImageUrl && (
-          <div className="absolute inset-0 z-0">
-            <img
-              src={book.coverImageUrl}
-              alt={book.title}
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                (e.target as HTMLElement).style.display = 'none';
-              }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/30 to-slate-950/50" />
-          </div>
+        {book.coverImageUrl ? (
+          <>
+            {/* Custom Uploaded Cover Image */}
+            <div className="absolute inset-0 z-0">
+              <img
+                src={book.coverImageUrl}
+                alt={book.title}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                onError={(e) => {
+                  (e.target as HTMLElement).style.display = 'none';
+                }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-black/10 to-slate-950/40 pointer-events-none" />
+            </div>
+
+            {/* Top Header Badge */}
+            <div className="relative z-10 text-center pt-0.5">
+              <span className="inline-block px-2 py-0.5 rounded-full bg-slate-950/70 backdrop-blur-xs text-[9px] text-amber-200 border border-amber-400/30 font-medium">
+                دار رميساء للنشر والترجمة
+              </span>
+            </div>
+
+            {/* Bottom Title & Author Plaque */}
+            <div className="relative z-10 mt-auto bg-slate-950/85 backdrop-blur-sm p-2 rounded-lg border border-amber-400/30 text-center shadow-lg">
+              <h4
+                className="font-brand font-bold text-white tracking-wide leading-tight line-clamp-2"
+                style={{ fontSize: size === 'sm' ? '11px' : size === 'md' ? '14px' : '17px' }}
+              >
+                {book.title}
+              </h4>
+              <p className="text-[10px] text-amber-200/90 truncate font-medium mt-0.5">
+                {book.author}
+              </p>
+              {size !== 'sm' && (
+                <p className="text-[8px] text-slate-400 font-mono mt-0.5">
+                  تيزي وزو • BNA {book.year}
+                </p>
+              )}
+            </div>
+          </>
+        ) : (
+          <>
+            {/* Procedural Heritage Gold-Stamped Leather Cover */}
+            <div className="relative z-10 text-center pt-1">
+              <p className="text-[10px] tracking-wider text-amber-200/80 font-medium">
+                دار رميساء للنشر والترجمة
+              </p>
+              <div className="w-8 h-0.5 bg-amber-400/30 mx-auto my-1" />
+            </div>
+
+            {/* Center Emblem & Titles */}
+            <div className="relative z-10 flex flex-col items-center justify-center my-auto text-center px-1">
+              <div className="p-3 rounded-full bg-slate-900/40 border border-amber-400/30 mb-2 shadow-inner">
+                {getIcon()}
+              </div>
+              <h4
+                className="font-brand font-bold text-white tracking-wide leading-tight drop-shadow-md"
+                style={{ fontSize: size === 'sm' ? '12px' : size === 'md' ? '18px' : '22px' }}
+              >
+                {book.title}
+              </h4>
+              {book.subtitle && size !== 'sm' && (
+                <p className="text-[11px] text-amber-200/90 font-literary mt-1 line-clamp-2 px-1">
+                  {book.subtitle}
+                </p>
+              )}
+            </div>
+
+            {/* Bottom Author & Legal Stamp */}
+            <div className="relative z-10 text-center pb-1">
+              <div className="w-12 h-0.5 bg-amber-400/30 mx-auto mb-1" />
+              <p className="text-[10px] text-slate-300 truncate font-medium">
+                {book.author}
+              </p>
+              <p className="text-[9px] text-amber-300/70 font-mono mt-0.5">
+                تيزي وزو • BNA {book.year}
+              </p>
+            </div>
+          </>
         )}
 
         {/* Subtle patterned gold filigree borders */}
         <div className="absolute inset-2 border border-amber-400/20 rounded pointer-events-none z-10" />
         <div className="absolute inset-3 border border-amber-400/10 rounded pointer-events-none z-10" />
-
-        {/* Top Header: Publishing House Emblem */}
-        <div className="relative z-10 text-center pt-1">
-          <p className="text-[10px] tracking-wider text-amber-200/80 font-medium">
-            دار رميساء للنشر والترجمة
-          </p>
-          <div className="w-8 h-0.5 bg-amber-400/30 mx-auto my-1" />
-        </div>
-
-        {/* Center Emblem & Titles */}
-        <div className="relative z-10 flex flex-col items-center justify-center my-auto text-center px-1">
-          <div className="p-3 rounded-full bg-slate-900/40 border border-amber-400/30 mb-2 shadow-inner">
-            {getIcon()}
-          </div>
-          <h4
-            className="font-brand font-bold text-white tracking-wide leading-tight drop-shadow-md"
-            style={{ fontSize: size === 'sm' ? '12px' : size === 'md' ? '18px' : '22px' }}
-          >
-            {book.title}
-          </h4>
-          {book.subtitle && size !== 'sm' && (
-            <p className="text-[11px] text-amber-200/90 font-literary mt-1 line-clamp-2 px-1">
-              {book.subtitle}
-            </p>
-          )}
-        </div>
-
-        {/* Bottom Author & Legal Stamp */}
-        <div className="relative z-10 text-center pb-1">
-          <div className="w-12 h-0.5 bg-amber-400/30 mx-auto mb-1" />
-          <p className="text-[10px] text-slate-300 truncate font-medium">
-            {book.author}
-          </p>
-          <p className="text-[9px] text-amber-300/70 font-mono mt-0.5">
-            تيزي وزو • BNA {book.year}
-          </p>
-        </div>
 
         {/* Subtle light reflection on cover */}
         <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/10 pointer-events-none" />

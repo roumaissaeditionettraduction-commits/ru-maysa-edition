@@ -13,11 +13,14 @@ import {
   Lock,
   CreditCard,
   FileBadge,
-  Share2
+  Share2,
+  Upload,
+  Trash2
 } from 'lucide-react';
 import { HouseSettings } from '../types';
 import { DEFAULT_HOUSE_SETTINGS } from '../data/mockData';
 import { FacebookIcon, WhatsAppIcon, InstagramIcon, TelegramIcon } from './SocialLinks';
+import { processImageFile } from '../utils/imageUtils';
 
 interface HouseSettingsPanelProps {
   settings: HouseSettings;
@@ -102,23 +105,58 @@ export const HouseSettingsPanel: React.FC<HouseSettingsPanelProps> = ({
           </div>
         </div>
 
-        {/* Logo URL & Live Preview */}
+        {/* Logo Image Upload & Live Preview */}
         <div>
           <label className="block font-semibold text-slate-700 mb-1">
-            رابط صورة الشعار الرسمي (Logo URL)
+            شعار دار النشر الرسمي (صورة من الهاتف / الكمبيوتر أو رابط)
           </label>
           <div className="flex flex-col sm:flex-row gap-3 items-center">
             <input
-              type="url"
-              placeholder="https://example.com/logo.png (اتركه فارغاً لاستخدام الشعار التراثي المذهب)"
-              value={formData.logoUrl}
+              type="text"
+              placeholder="ارفع صورة أو الصق رابط الشعار (اتركه فارغاً للشعار التراثي)"
+              value={formData.logoUrl.startsWith('data:image') ? 'تم تحميل صورة الشعار من الجهاز بنجاح' : formData.logoUrl}
               onChange={(e) => setFormData({ ...formData, logoUrl: e.target.value })}
               className="flex-1 px-3 py-2 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-amber-500 font-mono text-[11px]"
-              dir="ltr"
+              dir={formData.logoUrl.startsWith('data:image') ? 'rtl' : 'ltr'}
+              readOnly={formData.logoUrl.startsWith('data:image')}
             />
+
+            <label className="px-3 py-2 bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 rounded-lg text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-colors shrink-0 shadow-xs">
+              <Upload className="w-3.5 h-3.5 text-amber-700" />
+              <span>رفع صورة الشعار من الجهاز</span>
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    try {
+                      const res = await processImageFile(file, 400, 400, 0.9);
+                      setFormData({ ...formData, logoUrl: res.dataUrl });
+                    } catch (err: any) {
+                      alert(err?.message || 'فشل رفع الشعار');
+                    }
+                  }
+                  e.target.value = '';
+                }}
+              />
+            </label>
+
+            {formData.logoUrl && (
+              <button
+                type="button"
+                onClick={() => setFormData({ ...formData, logoUrl: '' })}
+                className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg border border-red-200 transition-colors"
+                title="إزالة الشعار والعودة للرمز التراثي"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            )}
+
             {/* Live Logo Preview Box */}
             <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg shrink-0">
-              <span className="text-slate-500 text-[11px]">معاينة الشعار:</span>
+              <span className="text-slate-500 text-[11px]">معاينة:</span>
               <div className="w-9 h-9 rounded-lg bg-slate-900 border border-amber-400/40 flex items-center justify-center overflow-hidden">
                 {formData.logoUrl ? (
                   <img
